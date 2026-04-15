@@ -1,7 +1,8 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
-    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
 
@@ -11,7 +12,6 @@ android {
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
-        // Enable core library desugaring for flutter_local_notifications
         isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -30,34 +30,40 @@ android {
         multiDexEnabled = true
     }
 
-    // 签名配置 - CI 环境通过 secrets 创建
-    signingConfigs {
-        create("release") {
-            // 这些值在 CI 中通过 key.properties 提供
-            val keystoreProps = java.util.Properties()
-            val keyPropsFile = file("key.properties")
-            if (keyPropsFile.exists()) {
-                keyPropsFile.inputStream().use { keystoreProps.load(it) }
-                storeFile = file("release.jks")
-                storePassword = keystoreProps["storePassword"] as String
-                keyAlias = keystoreProps["keyAlias"] as String
-                keyPassword = keystoreProps["keyPassword"] as String
+    // 签名配置
+    val keystoreFile = rootProject.file("android/app/release.jks")
+    val keyPropsFile = rootProject.file("android/app/key.properties")
+    val releaseSigningConfigured = keystoreFile.exists() && keyPropsFile.exists()
+
+    if (releaseSigningConfigured) {
+        val keystoreProps = Properties()
+        keyPropsFile.inputStream().use { keystoreProps.load(it) }
+
+        signingConfigs {
+            create("release") {
+                storeFile = keystoreFile
+                storePassword = keystoreProps.getProperty("storePassword")
+                keyAlias = keystoreProps.getProperty("keyAlias")
+                keyPassword = keystoreProps.getProperty("keyPassword")
             }
         }
     }
 
     buildTypes {
-        release {
-            signingConfig = signingConfigs.getByName("release")
-            isMinifyEnabled = true
-            isShrinkResources = true
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
-        }
-        debug {
+        getByName("debug") {
             signingConfig = signingConfigs.getByName("debug")
+        }
+        getByName("release") {
+            if (releaseSigningConfigured) {
+                signingConfig = signingConfigs.getByName("release")
+                isMinifyEnabled = true
+                proguardFiles(
+                    getDefaultProguardFile("proguard-android-optimize.txt"),
+                    "proguard-rules.pro"
+                )
+            } else {
+                signingConfig = signingConfigs.getByName("debug")
+            }
         }
     }
 }
