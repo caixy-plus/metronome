@@ -162,11 +162,11 @@ jobs:
       - name: Debug build output
         run: |
           echo "=== Checking build/windows/runner/Release ==="
-          ls -la build/windows/runner/Release/ 2>/dev/null || echo "Not found at this path"
+          if (Test-Path build/windows/runner/Release/) { ls build/windows/runner/Release/ } else { echo "Not found at this path" }
           echo "=== Checking build/windows/x64/runner/Release ==="
-          ls -la build/windows/x64/runner/Release/ 2>/dev/null || echo "Not found at this path"
+          if (Test-Path build/windows/x64/runner/Release/) { ls build/windows/x64/runner/Release/ } else { echo "Not found at this path" }
           echo "=== All exe files under build/windows ==="
-          find build/windows -name "*.exe" -type f 2>/dev/null
+          Get-ChildItem -Path build/windows -Filter "*.exe" -Recurse -File -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
