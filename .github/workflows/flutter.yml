@@ -127,11 +127,22 @@ jobs:
       - name: Build macOS
         run: flutter build macos
 
+      - name: Create DMG
+        run: |
+          APP_PATH="build/macos/Build/Products/Release/Metronome.app"
+          DMG_PATH="metronome.dmg"
+          VOL_NAME="Metronome"
+
+          # Create a temporary DMG
+          hdiutil create -volname "$VOL_NAME" -srcfolder "$APP_PATH" -o "$DMG_PATH" -ov -format UDZO
+
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: macos-build
-          path: build/macos/Build/Products/Release/
+          path: |
+            metronome.dmg
+          retention-days: 7
           retention-days: 7
 
   # ===========================================
@@ -161,22 +172,22 @@ jobs:
       - name: Build Windows
         run: flutter build windows --release
 
-      - name: Debug build output
+      - name: Setup WiX
+        run: dotnet tool install --global wix --version 5.0.0
+
+      - name: Build MSI
         run: |
-          echo "=== Checking build/windows/runner/Release ==="
-          if (Test-Path build/windows/runner/Release/) { ls build/windows/runner/Release/ } else { echo "Not found at this path" }
-          echo "=== Checking build/windows/x64/runner/Release ==="
-          if (Test-Path build/windows/x64/runner/Release/) { ls build/windows/x64/runner/Release/ } else { echo "Not found at this path" }
-          echo "=== All exe files under build/windows ==="
-          Get-ChildItem -Path build/windows -Filter "*.exe" -Recurse -File -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName
+          $releasePath = "build\windows\x64\runner\Release"
+          if (!(Test-Path $releasePath)) { $releasePath = "build\windows\runner\Release" }
+          $env:PATH = "$env:PATH;$env:USERPROFILE\.dotnet\tools"
+          & wix build windows\Package.wxs -d SourceDir="$releasePath" -o metronome.msi
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: windows-build
           path: |
-            build/windows/runner/Release/
-            build/windows/x64/runner/Release/
+            metronome.msi
           retention-days: 7
 
   # ===========================================

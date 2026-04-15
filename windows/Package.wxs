@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Package Name="Metronome"
+           Version="1.0.0"
+           Manufacturer="Metronome"
+           UpgradeCode="F1234567-89AB-CDEF-0123-456789ABCDEF"
+           Compressed="yes"
+           InstallerVersion="500">
+    <MajorUpgrade DowngradeErrorMessage="A newer version is already installed." />
+    <MediaTemplate EmbedCab="yes" />
+
+    <Feature Id="ProductFeature" Title="Metronome" Level="1">
+      <ComponentGroupRef Id="ProductComponents" />
+    </Feature>
+
+    <StandardDirectory Id="ProgramFiles64Folder">
+      <Directory Id="INSTALLFOLDER" Name="Metronome">
+        <Component Id="MainExecutable" Guid="F1234567-89AB-CDEF-0123-456789ABCDE1">
+          <File Id="MetronomeExe" Source="$(var.SourceDir)\metronome.exe" KeyPath="yes" />
+        </Component>
+        <Component Guid="F1234567-89AB-CDEF-0123-456789ABCDE2">
+          <File Source="$(var.SourceDir)\flutter_windows.dll" />
+        </Component>
+        <Component Guid="F1234567-89AB-CDEF-0123-456789ABCDE3">
+          <File Source="$(var.SourceDir)\flutter_soloud_plugin.dll" />
+        </Component>
+        <Component Guid="F1234567-89AB-CDEF-0123-456789ABCDE4">
+          <File Source="$(var.SourceDir)\window_manager_plugin.dll" />
+        </Component>
+        <Component Guid="F1234567-89AB-CDEF-0123-456789ABCDE5">
+          <File Source="$(var.SourceDir)\screen_retriever_windows_plugin.dll" />
+        </Component>
+        <Component Guid="F1234567-89AB-CDEF-0123-456789ABCDE6">
+          <File Source="$(var.SourceDir)\dartjni.dll" />
+        </Component>
+      </Directory>
+    </StandardDirectory>
+
+    <DirectoryRef Id="INSTALLFOLDER">
+      <ComponentGroup Id="ProductComponents">
+        <Component Id="MainExecutable" Guid="F1234567-89AB-CDEF-0123-456789ABCDE1">
+          <File Id="MetronomeExe" Source="$(var.SourceDir)\metronome.exe" KeyPath="yes" />
+        </Component>
+        <Component Guid="F1234567-89AB-CDEF-0123-456789ABCDE2">
+          <File Source="$(var.SourceDir)\flutter_windows.dll" />
+        </Component>
+        <Component Guid="F1234567-89AB-CDEF-0123-456789ABCDE3">
+          <File Source="$(var.SourceDir)\flutter_soloud_plugin.dll" />
+        </Component>
+        <Component Guid="F1234567-89AB-CDEF-0123-456789ABCDE4">
+          <File Source="$(var.SourceDir)\window_manager_plugin.dll" />
+        </Component>
+        <Component Guid="F1234567-89AB-CDEF-0123-456789ABCDE5">
+          <File Source="$(var.SourceDir)\screen_retriever_windows_plugin.dll" />
+        </Component>
+        <Component Guid="F1234567-89AB-CDEF-0123-456789ABCDE6">
+          <File Source="$(var.SourceDir)\dartjni.dll" />
+        </Component>
+      </ComponentGroup>
+    </DirectoryRef>
+  </Package>
+</Wix>
