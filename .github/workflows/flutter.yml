@@ -40,17 +40,26 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Get dependencies
-        run: flutter pub get --no-precompile
+      - name: Create key.properties
+        run: |
+          echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}" > android/key.properties
+          echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/key.properties
+          echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/key.properties
+          echo "${{ secrets.KEYSTORE_FILE }}" | base64 -d > android/app/release.jks
 
       - name: Build debug APK
         run: flutter build apk --debug
 
-      - name: Upload APK artifact
+      - name: Build release APK
+        run: flutter build apk --release
+
+      - name: Upload APK artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: android-debug-apk
-          path: build/app/outputs/flutter-apk/app-debug.apk
+          name: android-apks
+          path: |
+            build/app/outputs/flutter-apk/app-debug.apk
+            build/app/outputs/flutter-apk/app-release.apk
           retention-days: 7
 
   # ===========================================
@@ -152,35 +161,4 @@ jobs:
         with:
           name: windows-build
           path: build/windows/runner/Release/
-          retention-days: 7
-
-  # ===========================================
-  # Web 构建
-  # ===========================================
-  web:
-    name: Build Web
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: ${{ env.flutter-version }}
-          channel: 'stable'
-          cache: true
-
-      - name: Install dependencies
-        run: flutter pub get
-
-      - name: Build Web
-        run: flutter build web
-
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: web-build
-          path: build/web/
           retention-days: 7
