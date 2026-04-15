@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(flutter build ios --simulator --no-codesign)",
+      "Bash(flutter build apk --debug)",
+      "Bash(flutter pub get:*)",
+      "Bash(flutter run -d PLK110)",
+      "Bash(flutter run:*)",
+      "Bash(flutter devices)",
+      "Bash(cat:*)",
+      "Bash(flutter build:*)",
+      "Bash(flutter:*)",
+      "Bash(convert:*)",
+      "Bash(ls:*)",
+      "Bash(./scripts/update_icon.sh:*)",
+      "Bash(\\\\\\( +clone -fill white -draw \"roundrectangle 0,0,799,799,88,88\" \\\\\\) )",
+      "Bash(rounded_result.png)",
+      "Bash(git init)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git branch:*)",
+      "Bash(git remote add origin https://github.com/caixy-plus/metronome.git)",
+      "Bash(git push:*)"
+    ]
+  }
+}
