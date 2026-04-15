@@ -143,7 +143,6 @@ jobs:
           path: |
             metronome.dmg
           retention-days: 7
-          retention-days: 7
 
   # ===========================================
   # Windows 构建
