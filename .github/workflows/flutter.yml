@@ -183,13 +183,22 @@ jobs:
         run: |
           mkdir -p release_dist
           # Android
-          mv artifacts/android-apks/app-release.apk release_dist/metronome-android.apk
+          if [ -f artifacts/android-apks/app-release.apk ]; then
+            mv artifacts/android-apks/app-release.apk release_dist/metronome-android.apk
+          fi
           # iOS (must zip)
-          cd artifacts/ios-build && zip -r ../../release_dist/metronome-ios-simulator.zip . && cd ../..
+          if [ -d artifacts/ios-build ]; then
+            cd artifacts/ios-build && zip -r ../../release_dist/metronome-ios-simulator.zip . && cd ../..
+          fi
           # macOS
-          cd artifacts/macos-build && zip -r ../../release_dist/metronome-macos.zip . && cd ../..
+          if [ -d artifacts/macos-build ]; then
+            cd artifacts/macos-build && zip -r ../../release_dist/metronome-macos.zip . && cd ../..
+          fi
           # Windows
-          cd artifacts/windows-build && zip -r ../../release_dist/metronome-windows.zip . && cd ../..
+          if [ -d artifacts/windows-build ]; then
+            cd artifacts/windows-build && zip -r ../../release_dist/metronome-windows.zip . && cd ../..
+          fi
+          ls -la release_dist/
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
