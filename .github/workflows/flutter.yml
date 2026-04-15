@@ -153,14 +153,28 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Enable Windows desktop
+        run: flutter config --enable-windows-desktop
+
       - name: Build Windows
-        run: flutter build windows
+        run: flutter build windows --release
+
+      - name: Debug build output
+        run: |
+          echo "=== Checking build/windows/runner/Release ==="
+          ls -la build/windows/runner/Release/ 2>/dev/null || echo "Not found at this path"
+          echo "=== Checking build/windows/x64/runner/Release ==="
+          ls -la build/windows/x64/runner/Release/ 2>/dev/null || echo "Not found at this path"
+          echo "=== All exe files under build/windows ==="
+          find build/windows -name "*.exe" -type f 2>/dev/null
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: windows-build
-          path: build/windows/runner/Release/
+          path: |
+            build/windows/runner/Release/
+            build/windows/x64/runner/Release/
           retention-days: 7
 
   # ===========================================
