@@ -35,7 +35,7 @@ Future<void> main() async {
     await windowManager.ensureInitialized();
     const windowOptions = WindowOptions(
       backgroundColor: Color(0xFF0D0D0D), // 统一背景色
-      titleBarStyle: TitleBarStyle.hidden, // 隐藏标题栏对齐移动端
+      titleBarStyle: TitleBarStyle.normal, // 显示标题栏（包含最小化/最大化/关闭按钮）
       size: Size(400, 800),
       center: true,
     );

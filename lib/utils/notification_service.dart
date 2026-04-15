@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 /// 通知服务 - 后台播放时显示节拍状态
@@ -5,12 +6,16 @@ class NotificationService {
   static final FlutterLocalNotificationsPlugin _notifications =
       FlutterLocalNotificationsPlugin();
 
+  static bool get _isWindows => Platform.isWindows;
+
   static const String _channelId = 'metronome_playback';
   static const String _channelName = 'Metronome Playback';
   static const int _notificationId = 1;
 
   /// 初始化通知服务
   static Future<void> init() async {
+    if (_isWindows) return;
+
     const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
     const DarwinInitializationSettings iosSettings = DarwinInitializationSettings(
       requestAlertPermission: false,
@@ -86,6 +91,8 @@ class NotificationService {
     required int currentBeat,
     required int beatsPerMeasure,
   }) async {
+    if (_isWindows) return;
+
     final beatText = '${currentBeat + 1}/$beatsPerMeasure';
 
     final AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
@@ -136,6 +143,7 @@ class NotificationService {
 
   /// 取消通知
   static Future<void> cancelNotification() async {
+    if (_isWindows) return;
     await _notifications.cancel(_notificationId);
   }
 }
