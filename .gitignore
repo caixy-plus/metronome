@@ -79,6 +79,9 @@ macos/Flutter/Generated.xcconfig
 .env.*.local
 config.json
 
+# Claude Code local settings
+.claude/
+
 # Build artifacts
 *.dmg
 metronome.dmg
