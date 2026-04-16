@@ -187,7 +187,6 @@ jobs:
           # 安装并刷新路径
           dotnet tool install --global wix --version 5.0.0
           $env:PATH += ";$env:USERPROFILE\.dotnet\tools"
-          & wix extension add WixToolset.UI.wixext/5.0.0 --global
 
           # 自动定位 Release 路径并转为绝对路径（防止 WiX 找不到文件）
           $relPath = "build\windows\x64\runner\Release"
@@ -196,7 +195,6 @@ jobs:
 
           # 执行构建
           & wix build windows\Package.wxs `
-            -ext WixToolset.UI.wixext `
             -d SourceDir="$fullPath" `
             -o metronome.msi
 

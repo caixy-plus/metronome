@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- 核心修复：命名空间必须精写为 schemas/v4/wxs -->
-<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
-     xmlns:ui="http://wixtoolset.org">
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
 
   <Package Name="Metronome"
            Manufacturer="YourStudio"
@@ -11,7 +9,6 @@
 
     <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
 
-    <!-- 拟物化图标定义 -->
     <Icon Id="AppIcon" SourceFile="$(var.SourceDir)\data\flutter_assets\assets\images\app_icon.ico" />
     <Property Id="ARPPRODUCTICON" Value="AppIcon" />
 
@@ -24,7 +21,6 @@
       <Directory Id="INSTALLFOLDER" Name="Metronome" />
     </StandardDirectory>
 
-    <!-- 桌面快捷方式 -->
     <StandardDirectory Id="DesktopFolder">
       <Component Id="DesktopShortcutComponent" Guid="A1B2C3D4-E5F6-4789-8C9D-EF1234567890">
         <Shortcut Id="DesktopShortcut"
@@ -37,23 +33,17 @@
       </Component>
     </StandardDirectory>
 
-    <!-- 关键修复：补全 Flutter 运行依赖 -->
     <ComponentGroup Id="AppComponents" Directory="INSTALLFOLDER">
       <Component Id="MainExecutable" Guid="*">
         <File Id="MetronomeExe" Source="$(var.SourceDir)\metronome.exe" KeyPath="yes" />
       </Component>
-
       <Component Id="FlutterEngine" Guid="*">
-        <File Id="FlutterDll" Source="$(var.SourceDir)\flutter_windows.dll" KeyPath="yes" />
+        <File Id="FlutterDll" Source="$(var.SourceDir)\flutter_windows.dll" />
       </Component>
-
-      <!-- 注意：此处仅列出核心资源，AI 应确保 data 文件夹被完整包含 -->
       <Component Id="AppAssets" Guid="*">
         <File Id="AppIco" Source="$(var.SourceDir)\data\flutter_assets\assets\images\app_icon.ico" />
       </Component>
     </ComponentGroup>
 
-    <!-- WiX 5 UI 引用 -->
-    <ui:WixUI Id="WixUI_InstallDir" InstallDir="INSTALLFOLDER" />
   </Package>
 </Wix>
