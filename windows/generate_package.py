@@ -80,6 +80,8 @@ pkg = f'''<?xml version="1.0" encoding="UTF-8"?>
 
     <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
 
+    <MediaTemplate EmbedCab="yes" />
+
     <Icon Id="AppIcon" SourceFile="$(var.SourceDir)/app_icon.ico" />
     <Property Id="ARPPRODUCTICON" Value="AppIcon" />
 
