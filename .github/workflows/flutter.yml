@@ -136,7 +136,7 @@ jobs:
       - name: Prepare and Create DMG
         run: |
           APP_PATH="build/macos/Build/Products/Release/Metronome.app"
-          DMG_PATH="Metronome.dmg"
+          DMG_PATH="metronome.dmg"
 
           # 移除所有扩展属性 (com.apple.quarantine 等)
           xattr -cr "$APP_PATH"
@@ -162,7 +162,7 @@ jobs:
         with:
           name: macos-build
           path: |
-            Metronome.dmg
+            metronome.dmg
           retention-days: 7
 
   # ===========================================
