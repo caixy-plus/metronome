@@ -127,6 +127,16 @@ jobs:
       - name: Build macOS
         run: flutter build macos
 
+      - name: Prepare app bundle for non-notarized distribution
+        run: |
+          APP_PATH="build/macos/Build/Products/Release/Metronome.app"
+
+          # 移除所有扩展属性 (com.apple.quarantine 等)
+          xattr -cr "$APP_PATH"
+
+          # 确保二进制文件有执行权限
+          chmod +x "$APP_PATH/Contents/MacOS/Metronome"
+
       - name: Create DMG
         run: |
           APP_PATH="build/macos/Build/Products/Release/Metronome.app"
