@@ -184,21 +184,20 @@ jobs:
       - name: Build MSI
         shell: pwsh
         run: |
-          # 1. 安装 WiX 5.0.0
+          # 安装并刷新路径
           dotnet tool install --global wix --version 5.0.0
           $env:PATH += ";$env:USERPROFILE\.dotnet\tools"
-
-          # 2. 显式添加与 WiX 5 兼容的 UI 扩展版本 5.0.0
           & wix extension add WixToolset.UI.wixext/5.0.0 --global
 
-          # 3. 定位路径
-          $releasePath = "build\windows\x64\runner\Release"
-          if (!(Test-Path $releasePath)) { $releasePath = "build\windows\runner\Release" }
+          # 自动定位 Release 路径并转为绝对路径（防止 WiX 找不到文件）
+          $relPath = "build\windows\x64\runner\Release"
+          if (!(Test-Path $relPath)) { $relPath = "build\windows\runner\Release" }
+          $fullPath = (Resolve-Path $relPath).Path
 
-          # 4. 执行构建
+          # 执行构建
           & wix build windows\Package.wxs `
             -ext WixToolset.UI.wixext `
-            -d SourceDir="$releasePath" `
+            -d SourceDir="$fullPath" `
             -o metronome.msi
 
       - name: Upload build artifact
@@ -229,37 +228,22 @@ jobs:
         run: |
           mkdir -p release_dist
 
-          # Android - 直接复制 APK 文件
-          APK_FILE=$(find artifacts -name "app-release.apk" -type f 2>/dev/null | head -1)
-          if [ -n "$APK_FILE" ]; then
-            cp "$APK_FILE" release_dist/metronome-android.apk
+          # 1. Android - 搜索 apk 并复制
+          find artifacts -name "app-release.apk" -exec cp {} release_dist/metronome-android.apk \;
+
+          # 2. Windows - 搜索 MSI
+          find artifacts -name "metronome.msi" -exec cp {} release_dist/metronome-windows.msi \;
+
+          # 3. macOS - 搜索 DMG
+          find artifacts -name "metronome.dmg" -exec cp {} release_dist/metronome-macos.dmg \;
+
+          # 4. iOS - 压缩 iphonesimulator 目录
+          IOS_DIR=$(find artifacts -type d -name "iphonesimulator" | head -1)
+          if [ -n "$IOS_DIR" ]; then
+            (cd "$IOS_DIR" && zip -r ../../release_dist/metronome-ios-simulator.zip .)
           fi
 
-          # iOS - 优先使用现成的 zip 文件，否则从目录创建
-          IOS_ZIP=$(find artifacts -name "*.zip" -path "*ios*" -type f 2>/dev/null | head -1)
-          if [ -n "$IOS_ZIP" ]; then
-            cp "$IOS_ZIP" release_dist/metronome-ios-simulator.zip
-          else
-            IOS_DIR=$(find artifacts -type d -name "iphonesimulator" 2>/dev/null | head -1)
-            if [ -n "$IOS_DIR" ]; then
-              cd "$IOS_DIR" && zip -r ../../release_dist/metronome-ios-simulator.zip . && cd ../..
-            fi
-          fi
-
-          # macOS - 优先使用现成的 .dmg 文件
-          DMG_FILE=$(find artifacts -name "*.dmg" -type f 2>/dev/null | head -1)
-          if [ -n "$DMG_FILE" ]; then
-            cp "$DMG_FILE" release_dist/metronome-macos.dmg
-          fi
-
-          # Windows - 优先使用现成的 .msi 文件
-          MSI_FILE=$(find artifacts -name "*.msi" -type f 2>/dev/null | head -1)
-          if [ -n "$MSI_FILE" ]; then
-            cp "$MSI_FILE" release_dist/metronome-windows.msi
-          fi
-
-          echo "=== Release files ==="
-          ls -la release_dist/
+          ls -R release_dist/
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
