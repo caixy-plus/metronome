@@ -65,41 +65,6 @@ jobs:
           retention-days: 7
 
   # ===========================================
-  # iOS 构建 (macOS only)
-  # ===========================================
-  ios:
-    name: Build iOS
-    runs-on: macos-latest
-    timeout-minutes: 45
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: ${{ env.flutter-version }}
-          channel: 'stable'
-          cache: true
-
-      - name: Install dependencies
-        run: flutter pub get
-
-      - name: Get iOS dependencies
-        run: |
-          cd ios && pod install && cd ..
-
-      - name: Build iOS (Simulator)
-        run: flutter build ios --simulator --no-codesign
-
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: ios-build
-          path: build/ios/iphonesimulator/
-          retention-days: 7
-
-  # ===========================================
   # macOS 构建
   # ===========================================
   macos:
@@ -127,9 +92,16 @@ jobs:
       - name: Build macOS
         run: flutter build macos
 
-      - name: Prepare app bundle for non-notarized distribution
+      - name: Install create-dmg
+        run: |
+          if ! command -v create-dmg &> /dev/null; then
+            brew install create-dmg
+          fi
+
+      - name: Prepare and Create DMG
         run: |
           APP_PATH="build/macos/Build/Products/Release/Metronome.app"
+          DMG_PATH="metronome.dmg"
 
           # 移除所有扩展属性 (com.apple.quarantine 等)
           xattr -cr "$APP_PATH"
@@ -137,14 +109,18 @@ jobs:
           # 确保二进制文件有执行权限
           chmod +x "$APP_PATH/Contents/MacOS/Metronome"
 
-      - name: Create DMG
-        run: |
-          APP_PATH="build/macos/Build/Products/Release/Metronome.app"
-          DMG_PATH="metronome.dmg"
-          VOL_NAME="Metronome"
-
-          # Create a temporary DMG
-          hdiutil create -volname "$VOL_NAME" -srcfolder "$APP_PATH" -o "$DMG_PATH" -ov -format UDZO
+          # 使用 create-dmg 创建美观的 DMG (带拖动到 Applications 的链接)
+          create-dmg \
+            --volname "Metronome" \
+            --window-pos 200 200 \
+            --window-size 600 400 \
+            --icon-size 80 \
+            --icon "metronome.app" 150 200 \
+            --app-drop-link 450 200 \
+            --hide-extension "metronome.app" \
+            --format UDZO \
+            "$DMG_PATH" \
+            "$APP_PATH"
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
@@ -216,7 +192,7 @@ jobs:
   deploy:
     name: Deploy to GitHub Release
     runs-on: ubuntu-latest
-    needs: [android, ios, macos, windows]
+    needs: [android, macos, windows]
     if: startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main'
     permissions:
       contents: write
@@ -238,12 +214,6 @@ jobs:
 
           # 3. macOS - 搜索 DMG
           find artifacts -name "metronome.dmg" -exec cp {} release_dist/metronome-macos.dmg \;
-
-          # 4. iOS - 压缩 iphonesimulator 目录
-          IOS_DIR=$(find artifacts -type d -name "iphonesimulator" | head -1)
-          if [ -n "$IOS_DIR" ]; then
-            (cd "$IOS_DIR" && zip -r ../../release_dist/metronome-ios-simulator.zip .)
-          fi
 
           ls -R release_dist/
 
