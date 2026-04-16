@@ -31,8 +31,9 @@ android {
     }
 
     // 签名配置
-    val keystoreFile = rootProject.file("android/app/release.jks")
-    val keyPropsFile = rootProject.file("android/app/key.properties")
+    // rootProject 在 android/ 目录下，所以路径相对于 android/
+    val keystoreFile = rootProject.file("app/release.jks")
+    val keyPropsFile = rootProject.file("key.properties")
     val releaseSigningConfigured = keystoreFile.exists() && keyPropsFile.exists()
 
     if (releaseSigningConfigured) {
