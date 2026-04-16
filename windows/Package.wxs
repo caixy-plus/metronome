@@ -10,31 +10,53 @@
 
     <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
 
+    <Icon Id="AppIcon" SourceFile="$(var.SourceDir)\data\flutter_assets\assets\images\app_icon.ico" />
+    <Property Id="ARPPRODUCTICON" Value="AppIcon" />
+
     <Feature Id="Main">
       <ComponentGroupRef Id="AppComponents" />
       <ComponentRef Id="DesktopShortcutComponent" />
+      <ComponentRef Id="StartMenuShortcutComponent" />
     </Feature>
+
+    <ComponentGroup Id="AppComponents" Directory="INSTALLFOLDER">
+      <Component Id="MainExecutable" Guid="A1B2C3D4-E5F6-4789-8C9D-EF1234567890">
+        <File Id="MetronomeExe" Source="$(var.SourceDir)\metronome.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="FlutterWindowsDll" Guid="B2C3D4E5-F6A7-4890-9D8E-F12345678901">
+        <File Source="$(var.SourceDir)\flutter_windows.dll" />
+      </Component>
+      <Component Id="DataFolder" Guid="C3D4E5F6-A7B8-4901-9E8F-123456789012">
+        <File Source="$(var.SourceDir)\data" />
+      </Component>
+    </ComponentGroup>
 
     <StandardDirectory Id="ProgramFiles64Folder">
       <Directory Id="INSTALLFOLDER" Name="Metronome" />
     </StandardDirectory>
 
     <StandardDirectory Id="DesktopFolder">
-      <Component Id="DesktopShortcutComponent" Guid="A1B2C3D4-E5F6-4789-8C9D-EF1234567890">
+      <Component Id="DesktopShortcutComponent" Guid="D4E5F6A7-B8C9-4012-9F8E-234567890123">
         <Shortcut Id="DesktopShortcut"
                   Name="Metronome"
                   Description="Professional Metronome App"
                   Target="[!MetronomeExe]"
-                  WorkingDirectory="INSTALLFOLDER" />
+                  WorkingDirectory="INSTALLFOLDER"
+                  Icon="AppIcon" />
         <RegistryValue Root="HKCU" Key="Software\YourStudio\Metronome" Name="installed" Type="integer" Value="1" KeyPath="yes" />
       </Component>
     </StandardDirectory>
 
-    <ComponentGroup Id="AppComponents" Directory="INSTALLFOLDER">
-      <Component Id="MainExecutable" Guid="*">
-        <File Id="MetronomeExe" Source="$(var.SourceDir)\metronome.exe" KeyPath="yes" />
+    <StandardDirectory Id="ProgramMenuFolder">
+      <Component Id="StartMenuShortcutComponent" Guid="E5F6A7B8-C9D0-4123-AF9E-345678901234">
+        <Shortcut Id="StartMenuShortcut"
+                  Name="Metronome"
+                  Description="Professional Metronome App"
+                  Target="[!MetronomeExe]"
+                  WorkingDirectory="INSTALLFOLDER"
+                  Icon="AppIcon" />
       </Component>
-    </ComponentGroup>
+    </StandardDirectory>
 
     <ui:WixUI Id="WixUI_InstallDir" InstallDir="INSTALLFOLDER" />
   </Package>
