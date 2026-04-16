@@ -1,36 +1,80 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:ui="http://wixtoolset.org/ui">
+
   <Package Name="Metronome"
            Version="1.0.0"
            Manufacturer="Metronome"
-           UpgradeCode="F1234567-89AB-CDEF-0123-456789ABCDEF"
+           UpgradeCode="A1B2C3D4-E5F6-7890-ABCD-EF1234567890"
            Compressed="yes"
            InstallerVersion="500">
     <MajorUpgrade DowngradeErrorMessage="A newer version is already installed." />
     <MediaTemplate EmbedCab="yes" />
 
+    <!-- 图标资源 -->
+    <Icon Id="AppIcon" SourceFile="$(var.SourceDir)\data\flutter_assets\assets\images\app_icon.ico" />
+    <Property Id="ARPPRODUCTICON" Value="AppIcon" />
+
     <StandardDirectory Id="ProgramFiles64Folder">
       <Directory Id="INSTALLFOLDER" Name="Metronome">
-        <Component Id="MainExecutable" Guid="F1234567-89AB-CDEF-0123-456789ABCDE1">
+        <!-- 主程序 -->
+        <Component Id="MainExecutable" Guid="B1B2C3D4-E5F6-7890-ABCD-EF1234567891">
           <File Source="$(var.SourceDir)\metronome.exe" KeyPath="yes" />
+          <!-- 开始菜单快捷方式 -->
+          <Shortcut Id="StartMenuShortcut"
+                    Directory="ProgramMenuFolder"
+                    Name="Metronome"
+                    Icon="AppIcon"
+                    Advertise="yes"
+                    WorkingDirectory="INSTALLFOLDER" />
         </Component>
-        <Component Id="FlutterWindowsDll" Guid="F1234567-89AB-CDEF-0123-456789ABCDE2">
+
+        <!-- Flutter 核心 DLL -->
+        <Component Id="FlutterWindowsDll" Guid="C1B2C3D4-E5F6-7890-ABCD-EF1234567892">
           <File Source="$(var.SourceDir)\flutter_windows.dll" />
         </Component>
-        <Component Id="FlutterSoloudPluginDll" Guid="F1234567-89AB-CDEF-0123-456789ABCDE3">
+
+        <!-- Flutter 插件 DLL -->
+        <Component Id="FlutterSoloudPluginDll" Guid="D1B2C3D4-E5F6-7890-ABCD-EF1234567893">
           <File Source="$(var.SourceDir)\flutter_soloud_plugin.dll" />
         </Component>
-        <Component Id="WindowManagerPluginDll" Guid="F1234567-89AB-CDEF-0123-456789ABCDE4">
+        <Component Id="WindowManagerPluginDll" Guid="E1B2C3D4-E5F6-7890-ABCD-EF1234567894">
           <File Source="$(var.SourceDir)\window_manager_plugin.dll" />
         </Component>
-        <Component Id="ScreenRetrieverPluginDll" Guid="F1234567-89AB-CDEF-0123-456789ABCDE5">
+        <Component Id="ScreenRetrieverPluginDll" Guid="F1B2C3D4-E5F6-7890-ABCD-EF1234567895">
           <File Source="$(var.SourceDir)\screen_retriever_windows_plugin.dll" />
         </Component>
-        <Component Id="DartJniDll" Guid="F1234567-89AB-CDEF-0123-456789ABCDE6">
-          <File Source="$(var.SourceDir)\dartjni.dll" />
+
+        <!-- data/flutter_assets 目录 -->
+        <Component Id="FlutterAssets" Guid="*">
+          <File Source="$(var.SourceDir)\data\flutter_assets\*" />
         </Component>
       </Directory>
     </StandardDirectory>
+
+    <!-- 桌面文件夹 -->
+    <StandardDirectory Id="DesktopFolder" />
+
+    <!-- 开始菜单文件夹 -->
+    <StandardDirectory Id="ProgramMenuFolder" />
+
+    <!-- 桌面快捷方式组件 -->
+    <DirectoryRef Id="DesktopFolder">
+      <Component Id="DesktopShortcutComponent" Guid="G1B2C3D4-E5F6-7890-ABCD-EF1234567896">
+        <Shortcut Id="DesktopShortcut"
+                  Name="Metronome"
+                  Description="Professional Skeuomorphic Metronome"
+                  Target="[INSTALLFOLDER]metronome.exe"
+                  WorkingDirectory="INSTALLFOLDER"
+                  Icon="AppIcon" />
+        <RegistryValue Root="HKCU"
+                       Key="Software\Metronome"
+                       Name="installed"
+                       Type="integer"
+                       Value="1"
+                       KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
 
     <Feature Id="ProductFeature" Title="Metronome" Level="1">
       <ComponentRef Id="MainExecutable" />
@@ -38,7 +82,11 @@
       <ComponentRef Id="FlutterSoloudPluginDll" />
       <ComponentRef Id="WindowManagerPluginDll" />
       <ComponentRef Id="ScreenRetrieverPluginDll" />
-      <ComponentRef Id="DartJniDll" />
+      <ComponentRef Id="FlutterAssets" />
+      <ComponentRef Id="DesktopShortcutComponent" />
     </Feature>
+
+    <!-- UI 界面 -->
+    <ui:WixUI Id="WixUI_InstallDir" InstallDir="INSTALLFOLDER" />
   </Package>
 </Wix>

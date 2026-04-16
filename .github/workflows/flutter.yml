@@ -180,7 +180,7 @@ jobs:
           if (!(Test-Path $releasePath)) { $releasePath = "build\windows\runner\Release" }
           # dotnet tools 安装路径需要显式添加到 PATH
           $env:PATH = "$env:PATH;$env:USERPROFILE\.dotnet\tools"
-          & "$env:USERPROFILE\.dotnet\tools\wix.exe" build windows\Package.wxs -d SourceDir="$releasePath" -o metronome.msi
+          & "$env:USERPROFILE\.dotnet\tools\wix.exe" build windows\Package.wxs -ext WixToolset.UI.wixext -d SourceDir="$releasePath" -o metronome.msi
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
