@@ -9,7 +9,7 @@
 
     <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
 
-    <Icon Id="AppIcon" SourceFile="$(var.SourceDir)\data\flutter_assets\assets\images\app_icon.ico" />
+    <Icon Id="AppIcon" SourceFile="runner\resources\app_icon.ico" />
     <Property Id="ARPPRODUCTICON" Value="AppIcon" />
 
     <Feature Id="Main">
@@ -39,9 +39,6 @@
       </Component>
       <Component Id="FlutterEngine" Guid="*">
         <File Id="FlutterDll" Source="$(var.SourceDir)\flutter_windows.dll" />
-      </Component>
-      <Component Id="AppAssets" Guid="*">
-        <File Id="AppIco" Source="$(var.SourceDir)\data\flutter_assets\assets\images\app_icon.ico" />
       </Component>
     </ComponentGroup>
 

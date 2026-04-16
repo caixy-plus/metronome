@@ -196,6 +196,7 @@ jobs:
           # 执行构建
           & wix build windows\Package.wxs `
             -d SourceDir="$fullPath" `
+            -arch x64 `
             -o metronome.msi
 
       - name: Upload build artifact
