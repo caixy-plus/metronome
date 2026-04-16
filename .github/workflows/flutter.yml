@@ -178,8 +178,9 @@ jobs:
         run: |
           $releasePath = "build\windows\x64\runner\Release"
           if (!(Test-Path $releasePath)) { $releasePath = "build\windows\runner\Release" }
+          # dotnet tools 安装路径需要显式添加到 PATH
           $env:PATH = "$env:PATH;$env:USERPROFILE\.dotnet\tools"
-          & wix build windows\Package.wxs -d SourceDir="$releasePath" -o metronome.msi
+          & "$env:USERPROFILE\.dotnet\tools\wix.exe" build windows\Package.wxs -d SourceDir="$releasePath" -o metronome.msi
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
@@ -208,42 +209,36 @@ jobs:
       - name: Prepare release files
         run: |
           mkdir -p release_dist
-          mkdir -p temp_zip
 
-          # Android - use find to locate file
+          # Android - 直接复制 APK 文件
           APK_FILE=$(find artifacts -name "app-release.apk" -type f 2>/dev/null | head -1)
           if [ -n "$APK_FILE" ]; then
             cp "$APK_FILE" release_dist/metronome-android.apk
           fi
 
-          # iOS - copy to temp, then zip (avoid nested paths)
-          IOS_DIR=$(find artifacts -type d -name "iphonesimulator" 2>/dev/null | head -1)
-          if [ -n "$IOS_DIR" ]; then
-            cp -r "$IOS_DIR" temp_zip/ios_temp
-            cd temp_zip/ios_temp && zip -r ../metronome-ios-simulator.zip . && cd ../..
-            mv temp_zip/metronome-ios-simulator.zip release_dist/
-            rm -rf temp_zip/ios_temp
+          # iOS - 优先使用现成的 zip 文件，否则从目录创建
+          IOS_ZIP=$(find artifacts -name "*.zip" -path "*ios*" -type f 2>/dev/null | head -1)
+          if [ -n "$IOS_ZIP" ]; then
+            cp "$IOS_ZIP" release_dist/metronome-ios-simulator.zip
+          else
+            IOS_DIR=$(find artifacts -type d -name "iphonesimulator" 2>/dev/null | head -1)
+            if [ -n "$IOS_DIR" ]; then
+              cd "$IOS_DIR" && zip -r ../../release_dist/metronome-ios-simulator.zip . && cd ../..
+            fi
           fi
 
-          # macOS - copy to temp, then zip (avoid nested paths)
-          MACOS_DIR=$(find artifacts -type d \( -name "Release" -o -name "Products" \) 2>/dev/null | grep -E "Products|Release$" | head -1)
-          if [ -n "$MACOS_DIR" ]; then
-            cp -r "$MACOS_DIR" temp_zip/macos_temp
-            cd temp_zip/macos_temp && zip -r ../metronome-macos.zip . && cd ../..
-            mv temp_zip/metronome-macos.zip release_dist/
-            rm -rf temp_zip/macos_temp
+          # macOS - 优先使用现成的 .dmg 文件
+          DMG_FILE=$(find artifacts -name "*.dmg" -type f 2>/dev/null | head -1)
+          if [ -n "$DMG_FILE" ]; then
+            cp "$DMG_FILE" release_dist/metronome-macos.dmg
           fi
 
-          # Windows - copy to temp, then zip (avoid nested paths)
-          WIN_DIR=$(find artifacts -type d -name "Release" 2>/dev/null | head -1)
-          if [ -n "$WIN_DIR" ]; then
-            cp -r "$WIN_DIR" temp_zip/windows_temp
-            cd temp_zip/windows_temp && zip -r ../metronome-windows.zip . && cd ../..
-            mv temp_zip/metronome-windows.zip release_dist/
-            rm -rf temp_zip/windows_temp
+          # Windows - 优先使用现成的 .msi 文件
+          MSI_FILE=$(find artifacts -name "*.msi" -type f 2>/dev/null | head -1)
+          if [ -n "$MSI_FILE" ]; then
+            cp "$MSI_FILE" release_dist/metronome-windows.msi
           fi
 
-          rm -rf temp_zip
           echo "=== Release files ==="
           ls -la release_dist/
 

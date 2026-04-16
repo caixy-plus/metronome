@@ -11,7 +11,7 @@ import 'utils/notification_service.dart';
 
 Future<void> main() async {
   // 1. 确保 Flutter 绑定初始化
-  final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized();
 
   // 2. 设置音频会话（同步设置，无需等待）
   await SystemChrome.setPreferredOrientations([

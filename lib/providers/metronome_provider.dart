@@ -3,7 +3,6 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/metronome_settings.dart';
 import '../models/sound_type.dart';
-import '../utils/audio_service_interface.dart';
 import '../utils/audio_service.dart';
 import '../utils/dynamic_island_service.dart';
 import '../utils/notification_service.dart';
@@ -77,8 +76,8 @@ class MetronomeProvider extends ChangeNotifier {
     _saveSettings();
 
     // 如果 audioService 是 AudioService 实例，切换音效
-    if (_audioService is AudioService) {
-      final audioService = _audioService as AudioService;
+    final audioService = _audioService;
+    if (audioService is AudioService) {
       // 等待音效加载完成后再预览
       audioService.setSoundType(type).then((_) {
         audioService.playPreview();
@@ -212,8 +211,9 @@ class MetronomeProvider extends ChangeNotifier {
           savedSoundTypeIndex < SoundType.values.length) {
         _soundType = SoundType.values[savedSoundTypeIndex];
         // 切换到对应的音效
-        if (_audioService is AudioService) {
-          (_audioService as AudioService).setSoundType(_soundType);
+        final audioService = _audioService;
+        if (audioService is AudioService) {
+          audioService.setSoundType(_soundType);
         }
       }
 
