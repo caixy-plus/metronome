@@ -193,6 +193,9 @@ jobs:
           if (!(Test-Path $relPath)) { $relPath = "build\windows\runner\Release" }
           $fullPath = (Resolve-Path $relPath).Path
 
+          # 复制 icon 到 SourceDir（WiX 需要在 SourceDir 中找到 icon 文件）
+          Copy-Item "windows\runner\resources\app_icon.ico" -Destination "$fullPath" -Force
+
           # 执行构建
           & wix build windows\Package.wxs `
             -d SourceDir="$fullPath" `

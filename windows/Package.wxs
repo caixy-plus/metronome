@@ -9,16 +9,76 @@
 
     <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
 
-    <Icon Id="AppIcon" SourceFile="runner\resources\app_icon.ico" />
+    <MediaTemplate EmbedCab="yes" />
+
+    <Icon Id="AppIcon" SourceFile="$(var.SourceDir)\app_icon.ico" />
     <Property Id="ARPPRODUCTICON" Value="AppIcon" />
 
     <Feature Id="Main">
       <ComponentGroupRef Id="AppComponents" />
+      <ComponentGroupRef Id="DataComponents" />
       <ComponentRef Id="DesktopShortcutComponent" />
     </Feature>
 
     <StandardDirectory Id="ProgramFiles64Folder">
-      <Directory Id="INSTALLFOLDER" Name="Metronome" />
+      <Directory Id="INSTALLFOLDER" Name="Metronome">
+        <Directory Id="DataFolder" Name="data">
+        <Component Id="C_app_so" Guid="*"><File Id="F_C_app_so" Source="$(var.SourceDir)\data\app.so" KeyPath="yes" /></Component>
+        <Component Id="C_icudtl_dat" Guid="*"><File Id="F_C_icudtl_dat" Source="$(var.SourceDir)\data\icudtl.dat" KeyPath="yes" /></Component>
+        <Directory Id="D_flutter_assets" Name="flutter_assets">
+          <Component Id="C_flutter_assets_AssetManifest_bin" Guid="*"><File Id="F_C_flutter_assets_AssetManifest_bin" Source="$(var.SourceDir)\data\flutter_assets\AssetManifest.bin" KeyPath="yes" /></Component>
+          <Component Id="C_flutter_assets_FontManifest_json" Guid="*"><File Id="F_C_flutter_assets_FontManifest_json" Source="$(var.SourceDir)\data\flutter_assets\FontManifest.json" KeyPath="yes" /></Component>
+          <Component Id="C_flutter_assets_NativeAssetsManifest_json" Guid="*"><File Id="F_C_flutter_assets_NativeAssetsManifest_json" Source="$(var.SourceDir)\data\flutter_assets\NativeAssetsManifest.json" KeyPath="yes" /></Component>
+          <Component Id="C_flutter_assets_NOTICES_Z" Guid="*"><File Id="F_C_flutter_assets_NOTICES_Z" Source="$(var.SourceDir)\data\flutter_assets\NOTICES.Z" KeyPath="yes" /></Component>
+          <Directory Id="D_flutter_assets_assets" Name="assets">
+            <Component Id="C_flutter_assets_assets_help_zh_md" Guid="*"><File Id="F_C_flutter_assets_assets_help_zh_md" Source="$(var.SourceDir)\data\flutter_assets\assets\help_zh.md" KeyPath="yes" /></Component>
+            <Directory Id="D_flutter_assets_assets_sounds" Name="sounds">
+              <Directory Id="D_flutter_assets_assets_sounds_drum" Name="drum">
+                <Component Id="C_flutter_assets_assets_sounds_drum_click_high_wav" Guid="*"><File Id="F_C_flutter_assets_assets_sounds_drum_click_high_wav" Source="$(var.SourceDir)\data\flutter_assets\assets\sounds\drum\click_high.wav" KeyPath="yes" /></Component>
+                <Component Id="C_flutter_assets_assets_sounds_drum_click_low_wav" Guid="*"><File Id="F_C_flutter_assets_assets_sounds_drum_click_low_wav" Source="$(var.SourceDir)\data\flutter_assets\assets\sounds\drum\click_low.wav" KeyPath="yes" /></Component>
+              </Directory>
+              <Directory Id="D_flutter_assets_assets_sounds_electronic" Name="electronic">
+                <Component Id="C_flutter_assets_assets_sounds_electronic_click_high_wav" Guid="*"><File Id="F_C_flutter_assets_assets_sounds_electronic_click_high_wav" Source="$(var.SourceDir)\data\flutter_assets\assets\sounds\electronic\click_high.wav" KeyPath="yes" /></Component>
+                <Component Id="C_flutter_assets_assets_sounds_electronic_click_low_wav" Guid="*"><File Id="F_C_flutter_assets_assets_sounds_electronic_click_low_wav" Source="$(var.SourceDir)\data\flutter_assets\assets\sounds\electronic\click_low.wav" KeyPath="yes" /></Component>
+              </Directory>
+              <Directory Id="D_flutter_assets_assets_sounds_mechanical" Name="mechanical">
+                <Component Id="C_flutter_assets_assets_sounds_mechanical_click_high_wav" Guid="*"><File Id="F_C_flutter_assets_assets_sounds_mechanical_click_high_wav" Source="$(var.SourceDir)\data\flutter_assets\assets\sounds\mechanical\click_high.wav" KeyPath="yes" /></Component>
+                <Component Id="C_flutter_assets_assets_sounds_mechanical_click_low_wav" Guid="*"><File Id="F_C_flutter_assets_assets_sounds_mechanical_click_low_wav" Source="$(var.SourceDir)\data\flutter_assets\assets\sounds\mechanical\click_low.wav" KeyPath="yes" /></Component>
+              </Directory>
+              <Directory Id="D_flutter_assets_assets_sounds_voice" Name="voice">
+                <Component Id="C_flutter_assets_assets_sounds_voice_click_high_wav" Guid="*"><File Id="F_C_flutter_assets_assets_sounds_voice_click_high_wav" Source="$(var.SourceDir)\data\flutter_assets\assets\sounds\voice\click_high.wav" KeyPath="yes" /></Component>
+                <Component Id="C_flutter_assets_assets_sounds_voice_click_low_wav" Guid="*"><File Id="F_C_flutter_assets_assets_sounds_voice_click_low_wav" Source="$(var.SourceDir)\data\flutter_assets\assets\sounds\voice\click_low.wav" KeyPath="yes" /></Component>
+              </Directory>
+              <Directory Id="D_flutter_assets_assets_sounds_woodblock" Name="woodblock">
+                <Component Id="C_flutter_assets_assets_sounds_woodblock_click_high_wav" Guid="*"><File Id="F_C_flutter_assets_assets_sounds_woodblock_click_high_wav" Source="$(var.SourceDir)\data\flutter_assets\assets\sounds\woodblock\click_high.wav" KeyPath="yes" /></Component>
+                <Component Id="C_flutter_assets_assets_sounds_woodblock_click_low_wav" Guid="*"><File Id="F_C_flutter_assets_assets_sounds_woodblock_click_low_wav" Source="$(var.SourceDir)\data\flutter_assets\assets\sounds\woodblock\click_low.wav" KeyPath="yes" /></Component>
+              </Directory>
+            </Directory>
+          </Directory>
+          <Directory Id="D_flutter_assets_fonts" Name="fonts">
+            <Component Id="C_flutter_assets_fonts_MaterialIcons_Regular_otf" Guid="*"><File Id="F_C_flutter_assets_fonts_MaterialIcons_Regular_otf" Source="$(var.SourceDir)\data\flutter_assets\fonts\MaterialIcons-Regular.otf" KeyPath="yes" /></Component>
+          </Directory>
+          <Directory Id="D_flutter_assets_packages" Name="packages">
+            <Directory Id="D_flutter_assets_packages_cupertino_icons" Name="cupertino_icons">
+              <Directory Id="D_flutter_assets_packages_cupertino_icons_assets" Name="assets">
+                <Component Id="C_flutter_assets_packages_cupertino_icons_assets_CupertinoIcons_ttf" Guid="*"><File Id="F_C_flutter_assets_packages_cupertino_icons_assets_CupertinoIcons_ttf" Source="$(var.SourceDir)\data\flutter_assets\packages\cupertino_icons\assets\CupertinoIcons.ttf" KeyPath="yes" /></Component>
+              </Directory>
+            </Directory>
+            <Directory Id="D_flutter_assets_packages_flutter_soloud" Name="flutter_soloud">
+              <Directory Id="D_flutter_assets_packages_flutter_soloud_web" Name="web">
+                <Component Id="C_flutter_assets_packages_flutter_soloud_web_libflutter_soloud_plugin_js" Guid="*"><File Id="F_C_flutter_assets_packages_flutter_soloud_web_libflutter_soloud_plugin_js" Source="$(var.SourceDir)\data\flutter_assets\packages\flutter_soloud\web\libflutter_soloud_plugin.js" KeyPath="yes" /></Component>
+                <Component Id="C_flutter_assets_packages_flutter_soloud_web_libflutter_soloud_plugin_wasm" Guid="*"><File Id="F_C_flutter_assets_packages_flutter_soloud_web_libflutter_soloud_plugin_wasm" Source="$(var.SourceDir)\data\flutter_assets\packages\flutter_soloud\web\libflutter_soloud_plugin.wasm" KeyPath="yes" /></Component>
+                <Component Id="C_flutter_assets_packages_flutter_soloud_web_worker_dart_js" Guid="*"><File Id="F_C_flutter_assets_packages_flutter_soloud_web_worker_dart_js" Source="$(var.SourceDir)\data\flutter_assets\packages\flutter_soloud\web\worker.dart.js" KeyPath="yes" /></Component>
+              </Directory>
+            </Directory>
+          </Directory>
+          <Directory Id="D_flutter_assets_shaders" Name="shaders">
+            <Component Id="C_flutter_assets_shaders_ink_sparkle_frag" Guid="*"><File Id="F_C_flutter_assets_shaders_ink_sparkle_frag" Source="$(var.SourceDir)\data\flutter_assets\shaders\ink_sparkle.frag" KeyPath="yes" /></Component>
+            <Component Id="C_flutter_assets_shaders_stretch_effect_frag" Guid="*"><File Id="F_C_flutter_assets_shaders_stretch_effect_frag" Source="$(var.SourceDir)\data\flutter_assets\shaders\stretch_effect.frag" KeyPath="yes" /></Component>
+          </Directory>
+        </Directory>
+        </Directory>
+      </Directory>
     </StandardDirectory>
 
     <StandardDirectory Id="DesktopFolder">
@@ -42,5 +102,31 @@
       </Component>
     </ComponentGroup>
 
+    <ComponentGroup Id="DataComponents">
+      <ComponentRef Id="C_app_so" />
+      <ComponentRef Id="C_icudtl_dat" />
+      <ComponentRef Id="C_flutter_assets_AssetManifest_bin" />
+      <ComponentRef Id="C_flutter_assets_FontManifest_json" />
+      <ComponentRef Id="C_flutter_assets_NativeAssetsManifest_json" />
+      <ComponentRef Id="C_flutter_assets_NOTICES_Z" />
+      <ComponentRef Id="C_flutter_assets_assets_help_zh_md" />
+      <ComponentRef Id="C_flutter_assets_assets_sounds_drum_click_high_wav" />
+      <ComponentRef Id="C_flutter_assets_assets_sounds_drum_click_low_wav" />
+      <ComponentRef Id="C_flutter_assets_assets_sounds_electronic_click_high_wav" />
+      <ComponentRef Id="C_flutter_assets_assets_sounds_electronic_click_low_wav" />
+      <ComponentRef Id="C_flutter_assets_assets_sounds_mechanical_click_high_wav" />
+      <ComponentRef Id="C_flutter_assets_assets_sounds_mechanical_click_low_wav" />
+      <ComponentRef Id="C_flutter_assets_assets_sounds_voice_click_high_wav" />
+      <ComponentRef Id="C_flutter_assets_assets_sounds_voice_click_low_wav" />
+      <ComponentRef Id="C_flutter_assets_assets_sounds_woodblock_click_high_wav" />
+      <ComponentRef Id="C_flutter_assets_assets_sounds_woodblock_click_low_wav" />
+      <ComponentRef Id="C_flutter_assets_fonts_MaterialIcons_Regular_otf" />
+      <ComponentRef Id="C_flutter_assets_packages_cupertino_icons_assets_CupertinoIcons_ttf" />
+      <ComponentRef Id="C_flutter_assets_packages_flutter_soloud_web_libflutter_soloud_plugin_js" />
+      <ComponentRef Id="C_flutter_assets_packages_flutter_soloud_web_libflutter_soloud_plugin_wasm" />
+      <ComponentRef Id="C_flutter_assets_packages_flutter_soloud_web_worker_dart_js" />
+      <ComponentRef Id="C_flutter_assets_shaders_ink_sparkle_frag" />
+      <ComponentRef Id="C_flutter_assets_shaders_stretch_effect_frag" />
+    </ComponentGroup>
   </Package>
 </Wix>
