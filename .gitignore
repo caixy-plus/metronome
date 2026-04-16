@@ -78,3 +78,7 @@ macos/Flutter/Generated.xcconfig
 .env.local
 .env.*.local
 config.json
+
+# Build artifacts
+*.dmg
+metronome.dmg
