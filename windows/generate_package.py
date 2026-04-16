@@ -2,8 +2,6 @@ import os
 
 source_dir = r'C:\Users\volun\OneDrive\Documents\project\metronome\build\windows\x64\runner\Release\data'
 release_dir = r'C:\Users\volun\OneDrive\Documents\project\metronome\build\windows\x64\runner\Release'
-# Use forward slashes for WiX compatibility (Windows accepts forward slashes in paths)
-release_dir_source = release_dir.replace('\\', '/')
 files = []
 for root, dirs, filenames in os.walk(source_dir):
     for f in filenames:
@@ -50,7 +48,7 @@ def gen_ref(dir_id, indent):
         else:
             cid = item['cid']
             src = item['rel'].replace('\\', '/')
-            out += f'{indent}<Component Id="{cid}" Guid="*"><File Id="F_{cid}" Source="{release_dir_source}/data/{src}" KeyPath="yes" /></Component>\n'
+            out += f'{indent}<Component Id="{cid}" Guid="*"><File Id="F_{cid}" Source="$(var.SourceDir)/data/{src}" KeyPath="yes" /></Component>\n'
     return out
 
 def gen_component_group():
@@ -68,7 +66,7 @@ app_components_dlls = ''
 for dll in dll_files:
     cid = 'C_' + dll.replace('.', '_').replace('-', '_')
     app_components_dlls += f'      <Component Id="{cid}" Guid="*">\n'
-    app_components_dlls += f'        <File Id="F_{cid}" Source="{release_dir_source}/{dll}" />\n'
+    app_components_dlls += f'        <File Id="F_{cid}" Source="$(var.SourceDir)/{dll}" />\n'
     app_components_dlls += f'      </Component>\n'
 
 pkg = f'''<?xml version="1.0" encoding="UTF-8"?>
@@ -82,7 +80,7 @@ pkg = f'''<?xml version="1.0" encoding="UTF-8"?>
 
     <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
 
-    <Icon Id="AppIcon" SourceFile="{release_dir_source}/app_icon.ico" />
+    <Icon Id="AppIcon" SourceFile="$(var.SourceDir)/app_icon.ico" />
     <Property Id="ARPPRODUCTICON" Value="AppIcon" />
 
     <Feature Id="Main">
@@ -112,10 +110,10 @@ pkg = f'''<?xml version="1.0" encoding="UTF-8"?>
 
     <ComponentGroup Id="AppComponents" Directory="INSTALLFOLDER">
       <Component Id="MainExecutable" Guid="*">
-        <File Id="MetronomeExe" Source="{release_dir_source}/metronome.exe" KeyPath="yes" />
+        <File Id="MetronomeExe" Source="$(var.SourceDir)/metronome.exe" KeyPath="yes" />
       </Component>
       <Component Id="FlutterEngine" Guid="*">
-        <File Id="FlutterDll" Source="{release_dir_source}/flutter_windows.dll" />
+        <File Id="FlutterDll" Source="$(var.SourceDir)/flutter_windows.dll" />
       </Component>
 {app_components_dlls}    </ComponentGroup>
 
