@@ -181,19 +181,25 @@ jobs:
       - name: Build Windows
         run: flutter build windows --release
 
-      - name: Setup WiX
-        run: |
-          dotnet tool install --global wix --version 5.0.0
-          # WiX 5.0 扩展需要显式添加
-          wix extension add WixToolset.UI.wixext --global
-
       - name: Build MSI
         shell: pwsh
         run: |
+          # 1. 安装 WiX 5.0.0
+          dotnet tool install --global wix --version 5.0.0
+          $env:PATH += ";$env:USERPROFILE\.dotnet\tools"
+
+          # 2. 显式添加与 WiX 5 兼容的 UI 扩展版本 5.0.0
+          & wix extension add WixToolset.UI.wixext/5.0.0 --global
+
+          # 3. 定位路径
           $releasePath = "build\windows\x64\runner\Release"
           if (!(Test-Path $releasePath)) { $releasePath = "build\windows\runner\Release" }
-          $env:PATH += ";$env:USERPROFILE\.dotnet\tools"
-          & wix build windows\Package.wxs -ext WixToolset.UI.wixext -d SourceDir="$releasePath" -o metronome.msi
+
+          # 4. 执行构建
+          & wix build windows\Package.wxs `
+            -ext WixToolset.UI.wixext `
+            -d SourceDir="$releasePath" `
+            -o metronome.msi
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4

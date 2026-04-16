@@ -51,7 +51,8 @@
       "Bash(APP_PATH=\"build/macos/Build/Products/Release/Metronome.app\":*)",
       "Bash(xattr:*)",
       "Bash(chmod:*)",
-      "Bash(hdiutil create -volname \"Metronome\" -srcfolder \"$APP_PATH\" -o \"metronome.dmg\" -ov -format UDZO)"
+      "Bash(hdiutil create -volname \"Metronome\" -srcfolder \"$APP_PATH\" -o \"metronome.dmg\" -ov -format UDZO)",
+      "Bash(git rm --cached metronome.dmg)"
     ]
   }
 }
