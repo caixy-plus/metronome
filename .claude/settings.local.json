@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(*)",
+      "Read(*)",
+      "Bash(rm -f /Users/caixinyun/Workspace/Metronome/metronome/Metronome.dmg)",
+      "Bash(APP_PATH=\"build/macos/Build/Products/Release/metronome.app\")",
+      "Bash(\"Metronome.dmg\" )",
+      "Bash(\"$APP_PATH\")",
+      "Bash(gh auth status)",
+      "Bash(gh secret set:*)",
+      "Bash(gh secret set KEY_PASSWORD --body \"metronome123\")"
+    ]
+  }
+}
