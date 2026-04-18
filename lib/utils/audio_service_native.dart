@@ -1,10 +1,10 @@
 import 'dart:io';
-import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_soloud/flutter_soloud.dart';
 import '../models/sound_type.dart';
 import 'audio_service_interface.dart';
+import 'volume_utils.dart';
 
 /// 音效池
 class _SoundPool {
@@ -12,27 +12,7 @@ class _SoundPool {
   final Map<SoundType, AudioSource?> lowSounds = {};
   final Map<SoundType, bool> loaded = {};
 
-  static const Map<SoundType, double> gainOffsets = {
-    SoundType.mechanical: 0.0,
-    SoundType.electronic: -3.0,
-    SoundType.drumMachine: -2.0,
-    SoundType.woodblock: -6.0,
-    SoundType.voiceCount: -4.0,
-  };
-
-  static const double kBaseVolume = 0.8;
-
-  static double getVolume(SoundType type, bool isAccent) {
-    final offset = gainOffsets[type] ?? 0.0;
-    final linearOffset = isAccent
-        ? kBaseVolume * _dbToLinear(offset)
-        : kBaseVolume * 0.6 * _dbToLinear(offset);
-    return linearOffset.clamp(0.0, 1.0);
-  }
-
-  static double _dbToLinear(double db) {
-    return pow(10, db / 20).toDouble();
-  }
+  double getVolume(SoundType type, bool isAccent) => VolumeUtils.getVolume(type, isAccent);
 }
 
 /// 音频服务 - 防御性最强版本 (Native)
@@ -116,7 +96,7 @@ class AudioService extends AudioServiceInterface {
       _pool.loaded[type] = true;
       debugPrint('[AudioService]${_isWindows ? ' [Windows]' : ''} 成功加载音效包: ${type.displayName}');
       return true;
-    } catch (e, stack) {
+    } catch (e) {
       debugPrint('[AudioService]${_isWindows ? ' [Windows]' : ''} 加载音效包失败: ${type.folderName}');
       debugPrint('[AudioService]${_isWindows ? ' [Windows]' : ''} 错误详情: $e');
       // Windows 特有提示
@@ -168,7 +148,7 @@ class AudioService extends AudioServiceInterface {
     }
 
     if (source != null) {
-      final vol = _SoundPool.getVolume(_activeSoundType, isAccent);
+      final vol = _pool.getVolume(_activeSoundType, isAccent);
       debugPrint('[AudioService]${_isWindows ? ' [Windows]' : ''} 播放: ${_activeSoundType.displayName}, 音量: $vol, isAccent: $isAccent');
       _soloud!.play(source, volume: vol);
     } else {
@@ -203,7 +183,7 @@ class AudioService extends AudioServiceInterface {
 
     final source = _pool.highSounds[typeToPlay];
     if (source != null) {
-      final vol = _SoundPool.getVolume(typeToPlay, true);
+      final vol = _pool.getVolume(typeToPlay, true);
       debugPrint('[AudioService]${_isWindows ? ' [Windows]' : ''} 预览: $typeToPlay, 音量: $vol');
       _soloud!.play(source, volume: vol);
     }
