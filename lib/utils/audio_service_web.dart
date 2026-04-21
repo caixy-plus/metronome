@@ -74,7 +74,7 @@ class AudioService extends AudioServiceInterface {
   }
 
   @override
-  void playClick(bool isAccent) {
+  Future<void> playClick(bool isAccent) async {
     if (!_isReady) return;
 
     final source = isAccent
@@ -99,10 +99,22 @@ class AudioService extends AudioServiceInterface {
   }
 
   @override
-  void dispose() {
+  Future<void> dispose() async {
     _highSounds.clear();
     _lowSounds.clear();
     _loaded.clear();
     _isReady = false;
+  }
+
+  @override
+  void forceReinit() {
+    // Web 不存在原生音频设备重建问题；这里做一次软重置即可
+    //（并保持 fire-and-forget 语义与 Native 一致）
+    scheduleMicrotask(() async {
+      await dispose();
+      await init();
+      // 重新加载当前音效包（忽略失败，后续用户交互会再次触发加载/播放）
+      await _loadSoundType(_activeSoundType);
+    });
   }
 }

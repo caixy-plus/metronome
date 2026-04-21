@@ -53,11 +53,15 @@ class _MetronomeHome extends StatelessWidget {
 
   void _showSettingsSheet(BuildContext context) {
     HapticFeedback.mediumImpact();
+    final provider = context.read<MetronomeProvider>();
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (context) => const SettingsBottomSheet(),
+      builder: (bottomSheetContext) => ChangeNotifierProvider.value(
+        value: provider,
+        child: const SettingsBottomSheet(),
+      ),
     );
   }
 

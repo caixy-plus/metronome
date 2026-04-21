@@ -6,7 +6,6 @@ import 'package:provider/provider.dart';
 import 'package:window_manager/window_manager.dart';
 import 'providers/metronome_provider.dart';
 import 'screens/home_screen.dart';
-import 'utils/audio_service.dart';
 import 'utils/notification_service.dart';
 import 'utils/update_service.dart';
 import 'widgets/update_dialog.dart';
@@ -47,20 +46,8 @@ Future<void> main() async {
     });
   }
 
-  // 6. 音频引擎预热（与 UI 渲染并行）
-  // 使用单例，确保与 MetronomeProvider 使用同一实例
-  final audioFuture = () async {
-    await AudioService.instance.init();
-    await AudioService.instance.preload();
-    // 静默播放一次进行硬件握手
-    AudioService.instance.playClick(false);
-  }();
-
-  // 7. 启动 App（音频初始化并行执行）
+  // 6. 启动 App（初始化由 MetronomeProvider 统一管理，避免多重初始化竞态）
   runApp(const MetronomeApp());
-
-  // 8. 等待音频初始化完成
-  await audioFuture;
 }
 
 class MetronomeApp extends StatefulWidget {
@@ -71,20 +58,37 @@ class MetronomeApp extends StatefulWidget {
 }
 
 class _MetronomeAppState extends State<MetronomeApp> with WidgetsBindingObserver {
+  bool _showHome = true;
+  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _checkUpdateOnStartup();
+    // 延迟到第一帧渲染后再检查更新，确保 MaterialApp 已完全初始化
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkUpdateOnStartup();
+    });
   }
 
   Future<void> _checkUpdateOnStartup() async {
     if (kIsWeb) return;
+    // 等待足够长时间确保 widget 树完全构建
     await Future.delayed(const Duration(seconds: 3));
     if (!mounted) return;
-    final release = await UpdateService().checkUpdate();
-    if (release != null && mounted) {
-      await showUpdateDialog(context, release);
+    // 使用 try-catch 包装，任何异常都不传播
+    try {
+      final release = await UpdateService().checkUpdate();
+      if (!mounted) return;
+      if (release != null) {
+        // 注意：这里不能用 MetronomeApp 的 context（它在 MaterialApp 之上），否则会缺 MaterialLocalizations
+        final dialogContext = _navigatorKey.currentContext;
+        if (dialogContext != null && dialogContext.mounted) {
+          await showUpdateDialog(dialogContext, release);
+        }
+      }
+    } catch (e) {
+      debugPrint('检查更新失败: $e');
     }
   }
 
@@ -97,33 +101,40 @@ class _MetronomeAppState extends State<MetronomeApp> with WidgetsBindingObserver
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
-    if (state == AppLifecycleState.resumed) {
-      // 安卓滑动退出后重新打开时，音频引擎可能处于无效状态
-      // 强制重新初始化以恢复音频功能
-      debugPrint('[MetronomeApp] App resumed, reinitializing audio engine...');
-      AudioService.instance.init().then((_) {
-        debugPrint('[MetronomeApp] Audio engine reinitialized');
-      });
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.detached) {
+      // 强制卸载整个 HomeScreen 树，断开旧 Provider 的引用
+      if (_showHome) {
+        setState(() => _showHome = false);
+      }
+    } else if (state == AppLifecycleState.resumed) {
+      // 重新挂载，UniqueKey() 强制创建全新的 Provider 实例
+      if (!_showHome) {
+        setState(() => _showHome = true);
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => MetronomeProvider()..init(),
-      child: MaterialApp(
-        title: 'Metronome',
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: Colors.deepPurple,
-            brightness: Brightness.dark,
-          ),
-          useMaterial3: true,
-          scaffoldBackgroundColor: const Color(0xFF0D0D0D),
+    return MaterialApp(
+      navigatorKey: _navigatorKey,
+      title: 'Metronome',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.deepPurple,
+          brightness: Brightness.dark,
         ),
-        home: const HomeScreen(),
+        useMaterial3: true,
+        scaffoldBackgroundColor: const Color(0xFF0D0D0D),
       ),
+      home: _showHome
+          ? ChangeNotifierProvider(
+              key: UniqueKey(), // 每次进入强制生成全新实例，旧的必须滚蛋
+              create: (_) => MetronomeProvider()..init(),
+              child: const HomeScreen(),
+            )
+          : const Scaffold(backgroundColor: Color(0xFF0D0D0D)),
     );
   }
 }

@@ -5,6 +5,7 @@ abstract class AudioServiceInterface {
   Future<void> init();
   Future<void> preload();
   Future<void> setSoundType(SoundType type);
-  void playClick(bool isAccent);
-  void dispose();
+  Future<void> playClick(bool isAccent);
+  Future<void> dispose();
+  void forceReinit();
 }
