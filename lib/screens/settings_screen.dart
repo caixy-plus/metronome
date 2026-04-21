@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import '../models/sound_type.dart';
 import '../providers/metronome_provider.dart';
+import '../utils/update_service.dart';
 import '../widgets/sound_type_tile.dart';
+import '../widgets/update_dialog.dart';
 
 /// 设置页面 - 音效选择
 class SettingsScreen extends StatelessWidget {
@@ -43,6 +46,10 @@ class SettingsScreen extends StatelessWidget {
               _SectionTitle(icon: Icons.info_outline, title: '音效介绍'),
               SizedBox(height: 16),
               _SoundTypeInfo(),
+              SizedBox(height: 32),
+              _SectionTitle(icon: Icons.info, title: '关于'),
+              SizedBox(height: 16),
+              _AboutSection(),
             ],
           ),
         ),
@@ -157,6 +164,102 @@ class _InfoRow extends StatelessWidget {
           child: Text(desc, style: const TextStyle(color: Color(0xFFCCCCCC), fontSize: 13)),
         ),
       ],
+    );
+  }
+}
+
+class _AboutSection extends StatefulWidget {
+  const _AboutSection();
+
+  @override
+  State<_AboutSection> createState() => _AboutSectionState();
+}
+
+class _AboutSectionState extends State<_AboutSection> {
+  bool _isChecking = false;
+
+  Future<void> _checkForUpdates() async {
+    if (_isChecking) return;
+    setState(() => _isChecking = true);
+
+    final updateService = UpdateService();
+    final release = await updateService.checkUpdate();
+
+    if (!mounted) return;
+    setState(() => _isChecking = false);
+
+    if (release != null) {
+      await showUpdateDialog(context, release);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('已是最新版本'),
+          backgroundColor: Color(0xFF1A1A1A),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1A1A1A).withValues(alpha: 0.6),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFF333333).withValues(alpha: 0.5), width: 1),
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.music_note, color: Color(0xFF00F0FF), size: 20),
+              const SizedBox(width: 8),
+              const Text(
+                'Metronome',
+                style: TextStyle(
+                  color: Color(0xFF00F0FF),
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const Spacer(),
+              FutureBuilder<String>(
+                future: PackageInfo.fromPlatform().then((p) => p.version),
+                builder: (context, snapshot) {
+                  return Text(
+                    'v${snapshot.data ?? '...'}',
+                    style: const TextStyle(color: Color(0xFF888888), fontSize: 13),
+                  );
+                },
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: _isChecking ? null : _checkForUpdates,
+              icon: _isChecking
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF00F0FF)),
+                    )
+                  : const Icon(Icons.system_update, size: 18, color: Color(0xFF00F0FF)),
+              label: Text(
+                _isChecking ? '检测中...' : '检查新版本',
+                style: const TextStyle(color: Color(0xFF00F0FF)),
+              ),
+              style: OutlinedButton.styleFrom(
+                side: const BorderSide(color: Color(0xFF00F0FF)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

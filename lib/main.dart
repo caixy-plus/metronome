@@ -8,6 +8,8 @@ import 'providers/metronome_provider.dart';
 import 'screens/home_screen.dart';
 import 'utils/audio_service.dart';
 import 'utils/notification_service.dart';
+import 'utils/update_service.dart';
+import 'widgets/update_dialog.dart';
 
 Future<void> main() async {
   // 1. 确保 Flutter 绑定初始化
@@ -73,6 +75,17 @@ class _MetronomeAppState extends State<MetronomeApp> with WidgetsBindingObserver
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _checkUpdateOnStartup();
+  }
+
+  Future<void> _checkUpdateOnStartup() async {
+    if (kIsWeb) return;
+    await Future.delayed(const Duration(seconds: 3));
+    if (!mounted) return;
+    final release = await UpdateService().checkUpdate();
+    if (release != null && mounted) {
+      await showUpdateDialog(context, release);
+    }
   }
 
   @override
