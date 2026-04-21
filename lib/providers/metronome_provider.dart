@@ -316,13 +316,23 @@ class MetronomeProvider extends ChangeNotifier with WidgetsBindingObserver {
   /// 执行的回调，使用序列号检测是否为过期回调
   void _onTick(int seq) {
     // 序列号不匹配说明是过期回调（如 stop() 后被调度的定时器）
-    if (seq != _timerSeq || !_isPlaying) return;
+    if (seq != _timerSeq || !_isPlaying) {
+      _timer?.cancel();
+      return;
+    }
+
+    // 检查是否已经离开了 UI 树（hasListeners 为 false 说明没有 Widget 在监听）
+    if (!hasListeners) {
+      stop();
+      return;
+    }
 
     _executeTick();
     _scheduleNextTick();
   }
 
   void _executeTick() {
+    debugPrint('--- TICK [${identityHashCode(this)}] BPM:$bpm Time:${DateTime.now().millisecondsSinceEpoch} ---');
     // 记录本拍触发时的绝对时间，用于精确计算 BPM 切换后的下一拍时间
     _lastTickTimeUs = _stopwatch.elapsedMicroseconds;
 
@@ -483,11 +493,16 @@ class MetronomeProvider extends ChangeNotifier with WidgetsBindingObserver {
 
   @override
   void dispose() {
+    // 1. 先停止播放（这会递增 _timerSeq 使所有旧回调失效）
+    stop();
+    // 2. 移除生命周期观察者
     WidgetsBinding.instance.removeObserver(this);
-    _timer?.cancel();
+    // 3. 清理所有待处理的计时器
     _bpmAdjustTimer?.cancel();
     _bpmDebounceTimer?.cancel();
-    _audioService.dispose();
+    _bpmDebounceTimer = null;
+    // 注意：不要调用 _audioService.dispose()！AudioService 是全局单例，
+    // 跟随 Provider 销毁会导致右滑返回后音频引擎被销毁，再次进入时无法恢复
     super.dispose();
   }
 
@@ -501,6 +516,19 @@ class MetronomeProvider extends ChangeNotifier with WidgetsBindingObserver {
         state == AppLifecycleState.detached) {
       debugPrint('[MetronomeProvider] AppLifecycleState: $state, stopping playback');
       stop();
+      return;
+    }
+
+    // iOS “右滑手势退出/回到桌面”后再次进入，常见现象是音频引擎仍显示已初始化但实际无声。
+    // resumed 时做一次轻量的“硬重建”尝试，确保音频设备/焦点恢复。
+    if (state == AppLifecycleState.resumed) {
+      final audioService = _audioService;
+      if (audioService is AudioService) {
+        debugPrint('[MetronomeProvider] AppLifecycleState: resumed, reinitializing audio engine');
+        audioService.forceReinit();
+        // 重新应用一次用户选择的音效类型，确保资源已加载
+        audioService.setSoundType(_soundType);
+      }
     }
   }
 }
