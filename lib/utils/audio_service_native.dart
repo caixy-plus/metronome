@@ -31,10 +31,25 @@ class AudioService extends AudioServiceInterface {
   bool _isReady = false;
   bool get isReady => _isReady;
   bool get _isWindows => Platform.isWindows;
+  bool _forceReinit = false;
 
   @override
   Future<void> init() async {
     try {
+      // 强制重初始化：用于 dispose 后或应用恢复时，确保音频引擎在干净的状态
+      if (_forceReinit) {
+        debugPrint('[AudioService]${_isWindows ? ' [Windows]' : ''} 强制重初始化音频引擎...');
+        try {
+          if (_soloud != null) {
+            _soloud!.deinit();
+          }
+        } catch (_) {
+          // 忽略关闭错误
+        }
+        _soloud = null;
+        _forceReinit = false;
+      }
+
       _soloud = SoLoud.instance;
       if (_soloud == null) {
         _logError('SoLoud.instance 返回 null', null, null, true);
@@ -191,6 +206,8 @@ class AudioService extends AudioServiceInterface {
 
   @override
   void dispose() {
+    _forceReinit = true; // 下次 init 时强制重初始化
+
     if (_soloud == null) {
       debugPrint('[AudioService]${_isWindows ? ' [Windows]' : ''} dispose: 音频引擎已清理');
       return;
