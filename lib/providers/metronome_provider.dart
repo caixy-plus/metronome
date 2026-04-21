@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart' show WidgetsBinding, AppLifecycleState, WidgetsBindingObserver;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/metronome_settings.dart';
 import '../models/sound_type.dart';
@@ -17,7 +18,7 @@ const String _prefKeyBeatUnit = 'metronome_beat_unit';
 const String _prefKeySoundType = 'metronome_sound_type';
 
 /// 节拍器状态提供者 - 高精度版本
-class MetronomeProvider extends ChangeNotifier {
+class MetronomeProvider extends ChangeNotifier with WidgetsBindingObserver {
   MetronomeSettings _settings = const MetronomeSettings();
   bool _isPlaying = false;
   int _currentBeat = 0;
@@ -59,7 +60,10 @@ class MetronomeProvider extends ChangeNotifier {
   List<bool> get playedAccents => List.unmodifiable(_playedAccents);
 
   MetronomeProvider({AudioServiceInterface? audioService})
-      : _audioService = audioService ?? AudioService.instance;
+      : _audioService = audioService ?? AudioService.instance {
+    // 注册生命周期监听，确保后台时停止播放
+    WidgetsBinding.instance.addObserver(this);
+  }
 
   /// 记录上一拍的实际触发时间（微秒），用于 BPM 切换时精确计算下一拍时间
   /// 当 BPM 改变时，下一拍时间 = _lastTickTimeUs + 新 intervalUs
@@ -479,10 +483,24 @@ class MetronomeProvider extends ChangeNotifier {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _timer?.cancel();
     _bpmAdjustTimer?.cancel();
     _bpmDebounceTimer?.cancel();
     _audioService.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // 当应用进入非活跃状态（后台/锁屏/切换应用）时，确保停止播放
+    // 这可以防止右滑退出时计时器继续运行导致的双实例问题
+    // stop() 是幂等的，直接调用即可，_isPlaying 检查是多余的
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.detached) {
+      debugPrint('[MetronomeProvider] AppLifecycleState: $state, stopping playback');
+      stop();
+    }
   }
 }
