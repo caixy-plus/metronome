@@ -42,7 +42,7 @@ dependencies:
   shared_preferences: ^2.2.3
 
   # Audio playback - low latency
-  flutter_soloud: ^2.0.0
+  flutter_soloud: ^4.0.0
 
   # Background notifications
   flutter_local_notifications: ^18.0.0
@@ -54,7 +54,7 @@ dependencies:
   http: ^1.2.0
 
   # Package info for version reading (Flutter unified version management)
-  package_info_plus: ^5.0.0
+  package_info_plus: ^10.0.0
 
   # Open URLs in browser
   url_launcher: ^6.2.0
