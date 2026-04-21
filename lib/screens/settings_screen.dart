@@ -183,17 +183,25 @@ class _AboutSectionState extends State<_AboutSection> {
     setState(() => _isChecking = true);
 
     final updateService = UpdateService();
-    final release = await updateService.checkUpdate();
+    final result = await updateService.checkUpdate();
 
     if (!mounted) return;
     setState(() => _isChecking = false);
 
-    if (release != null) {
+    if (result case UpdateAvailable(:final release)) {
       await showUpdateDialog(context, release);
-    } else {
+    } else if (result is UpToDate) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('已是最新版本'),
+          backgroundColor: Color(0xFF1A1A1A),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('检查失败，请稍后重试'),
           backgroundColor: Color(0xFF1A1A1A),
           behavior: SnackBarBehavior.floating,
         ),

@@ -78,13 +78,26 @@ class _MetronomeAppState extends State<MetronomeApp> with WidgetsBindingObserver
     if (!mounted) return;
     // 使用 try-catch 包装，任何异常都不传播
     try {
-      final release = await UpdateService().checkUpdate();
+      final result = await UpdateService().checkUpdate();
       if (!mounted) return;
-      if (release != null) {
+      if (result case UpdateAvailable(:final release)) {
         // 注意：这里不能用 MetronomeApp 的 context（它在 MaterialApp 之上），否则会缺 MaterialLocalizations
         final dialogContext = _navigatorKey.currentContext;
         if (dialogContext != null && dialogContext.mounted) {
           await showUpdateDialog(dialogContext, release);
+        }
+      } else if (result case UpToDate(:final currentVersion)) {
+        //已是最新版本，不打扰用户，静默
+      } else if (result case UpdateCheckFailed()) {
+        final ctx = _navigatorKey.currentContext;
+        if (ctx != null && ctx.mounted) {
+          ScaffoldMessenger.of(ctx).showSnackBar(
+            const SnackBar(
+              content: Text('检查新版本失败'),
+              backgroundColor: Color(0xFF1A1A1A),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
         }
       }
     } catch (e) {
