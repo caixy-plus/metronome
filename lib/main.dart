@@ -61,8 +61,38 @@ Future<void> main() async {
   await audioFuture;
 }
 
-class MetronomeApp extends StatelessWidget {
+class MetronomeApp extends StatefulWidget {
   const MetronomeApp({super.key});
+
+  @override
+  State<MetronomeApp> createState() => _MetronomeAppState();
+}
+
+class _MetronomeAppState extends State<MetronomeApp> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed) {
+      // 安卓滑动退出后重新打开时，音频引擎可能处于无效状态
+      // 强制重新初始化以恢复音频功能
+      debugPrint('[MetronomeApp] App resumed, reinitializing audio engine...');
+      AudioService.instance.init().then((_) {
+        debugPrint('[MetronomeApp] Audio engine reinitialized');
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
