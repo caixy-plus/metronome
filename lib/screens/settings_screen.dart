@@ -234,10 +234,10 @@ class _AboutSectionState extends State<_AboutSection> {
               ),
               const Spacer(),
               FutureBuilder<String>(
-                future: PackageInfo.fromPlatform().then((p) => p.version),
+                future: PackageInfo.fromPlatform().then((p) => 'v${p.version}+${p.buildNumber}'),
                 builder: (context, snapshot) {
                   return Text(
-                    'v${snapshot.data ?? '...'}',
+                    snapshot.data ?? '...',
                     style: const TextStyle(color: Color(0xFF888888), fontSize: 13),
                   );
                 },
