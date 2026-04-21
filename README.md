@@ -191,15 +191,6 @@ assets/sounds/{folder_name}/
 
 ---
 
-## 相关文档
-
-| 文档 | 说明 |
-|:---|:---|
-| [README_AI_CONTEXT.md](./README_AI_CONTEXT.md) | 开发者/AI 工程约束 |
-| [CHANGELOG.md](./CHANGELOG.md) | 版本更新记录 |
-
----
-
 ## 贡献
 
 欢迎提交 Issue 和 Pull Request！
