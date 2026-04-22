@@ -86,7 +86,7 @@ class _MetronomeAppState extends State<MetronomeApp> with WidgetsBindingObserver
         if (dialogContext != null && dialogContext.mounted) {
           await showUpdateDialog(dialogContext, release);
         }
-      } else if (result case UpToDate(:final currentVersion)) {
+      } else if (result case UpToDate()) {
         //已是最新版本，不打扰用户，静默
       } else if (result case UpdateCheckFailed()) {
         final ctx = _navigatorKey.currentContext;
