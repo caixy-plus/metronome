@@ -59,6 +59,9 @@ dependencies:
   # Open URLs in browser
   url_launcher: ^6.2.0
 
+  # Web platform support (replaces deprecated dart:html)
+  web: ^1.0.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
