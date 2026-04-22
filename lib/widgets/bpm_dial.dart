@@ -229,8 +229,12 @@ class _DraggableBpmArcState extends State<_DraggableBpmArc> {
     // 将角度标准化到相对于起始角度的值
     double relativeAngle = angle - _startAngle;
     // 标准化到 0 到 2π 之间
-    while (relativeAngle < 0) relativeAngle += math.pi * 2;
-    while (relativeAngle > math.pi * 2) relativeAngle -= math.pi * 2;
+    while (relativeAngle < 0) {
+      relativeAngle += math.pi * 2;
+    }
+    while (relativeAngle > math.pi * 2) {
+      relativeAngle -= math.pi * 2;
+    }
     return (relativeAngle / _sweepAngle).clamp(0.0, 1.0);
   }
 
