@@ -10,10 +10,10 @@ flutter run                 # 开发模式运行
 flutter test                # 运行所有测试
 flutter test test/metronome_settings_test.dart  # 运行单个测试文件
 flutter analyze             # 静态分析
-flutter build macos         # macOS
-flutter build windows       # Windows
-flutter build apk           # Android
-flutter build web           # Web
+flutter build macos                     # macOS
+flutter build windows                   # Windows
+flutter build apk                       # Android
+flutter build web --no-web-resources-cdn # Web（使用本地资源，不依赖 CDN）
 ```
 
 ## 发布流程
