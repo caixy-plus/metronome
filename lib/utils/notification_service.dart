@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 /// 通知服务 - 后台播放时显示节拍状态
@@ -6,7 +6,7 @@ class NotificationService {
   static final FlutterLocalNotificationsPlugin _notifications =
       FlutterLocalNotificationsPlugin();
 
-  static bool get _isWindows => Platform.isWindows;
+  static bool get _isWindows => defaultTargetPlatform == TargetPlatform.windows;
 
   static const String _channelId = 'metronome_playback';
   static const String _channelName = 'Metronome Playback';
