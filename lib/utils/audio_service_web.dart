@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
-// ignore: avoid_web_libraries_in_non_web
-import 'dart:html' as html;
+import 'package:web/web.dart' as web;
 import '../models/sound_type.dart';
 import 'audio_service_interface.dart';
 import 'volume_utils.dart';
@@ -15,8 +14,8 @@ class AudioService extends AudioServiceInterface {
 
   AudioService._internal();
 
-  final Map<SoundType, html.AudioElement> _highSounds = {};
-  final Map<SoundType, html.AudioElement> _lowSounds = {};
+  final Map<SoundType, web.HTMLAudioElement> _highSounds = {};
+  final Map<SoundType, web.HTMLAudioElement> _lowSounds = {};
   final Map<SoundType, bool> _loaded = {};
   bool _isReady = false;
   SoundType _activeSoundType = SoundType.mechanical;
@@ -37,8 +36,8 @@ class AudioService extends AudioServiceInterface {
       final lowPath = _getSoundPath(type, false);
 
       // 使用 HTML5 AudioElement 加载音频
-      final high = html.AudioElement(highPath);
-      final low = html.AudioElement(lowPath);
+      final high = web.HTMLAudioElement()..src = highPath;
+      final low = web.HTMLAudioElement()..src = lowPath;
 
       // 预加载音频
       high.preload = 'auto';
@@ -85,9 +84,7 @@ class AudioService extends AudioServiceInterface {
       final vol = VolumeUtils.getVolume(_activeSoundType, isAccent);
       source.volume = vol;
       source.currentTime = 0;
-      source.play().catchError((e) {
-        debugPrint('[AudioService] Web 播放异常: $e');
-      });
+      source.play();
       debugPrint('[AudioService] Web 播放: ${_activeSoundType.displayName}, vol: $vol');
     } else {
       debugPrint('[AudioService] Web 播放失败: 资源未加载');
