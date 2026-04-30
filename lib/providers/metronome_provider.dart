@@ -512,7 +512,6 @@ class MetronomeProvider extends ChangeNotifier with WidgetsBindingObserver {
     // 这可以防止右滑退出时计时器继续运行导致的双实例问题
     // stop() 是幂等的，直接调用即可，_isPlaying 检查是多余的
     if (state == AppLifecycleState.paused ||
-        state == AppLifecycleState.inactive ||
         state == AppLifecycleState.detached) {
       debugPrint('[MetronomeProvider] AppLifecycleState: $state, stopping playback');
       stop();
