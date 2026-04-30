@@ -10,7 +10,6 @@ class BeatIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).extension<AppColors>()!;
     return RepaintBoundary(
       child: Consumer<MetronomeProvider>(
         builder: (context, provider, _) {
