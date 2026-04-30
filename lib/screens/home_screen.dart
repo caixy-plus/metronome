@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../providers/metronome_provider.dart';
+import '../providers/theme_provider.dart';
 import '../theme/app_colors.dart';
 import '../widgets/bpm_dial.dart';
 import '../widgets/beat_type_selector.dart';
@@ -55,12 +56,16 @@ class _MetronomeHome extends StatelessWidget {
   void _showSettingsSheet(BuildContext context) {
     HapticFeedback.mediumImpact();
     final provider = context.read<MetronomeProvider>();
+    final themeProvider = context.read<ThemeProvider>();
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (bottomSheetContext) => ChangeNotifierProvider.value(
-        value: provider,
+      builder: (bottomSheetContext) => MultiProvider(
+        providers: [
+          ChangeNotifierProvider.value(value: provider),
+          ChangeNotifierProvider.value(value: themeProvider),
+        ],
         child: const SettingsBottomSheet(),
       ),
     );
