@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:metronome/providers/metronome_provider.dart';
 import 'package:metronome/screens/home_screen.dart';
+import 'package:metronome/theme/app_colors.dart';
 
 // Mock MethodChannel for audioplayers
 void setupMockAudioPlayers() {
@@ -41,6 +42,9 @@ void main() {
 
     Widget createTestWidget() {
       return MaterialApp(
+        theme: ThemeData.dark().copyWith(
+          extensions: [AppColors.dark],
+        ),
         home: ChangeNotifierProvider<MetronomeProvider>.value(
           value: provider,
           child: const HomeScreen(),
@@ -51,7 +55,7 @@ void main() {
     testWidgets('显示正确的标题', (WidgetTester tester) async {
       await tester.pumpWidget(createTestWidget());
 
-      expect(find.text('Metronome'), findsOneWidget);
+      expect(find.text('METRONOME'), findsOneWidget);
     });
 
     testWidgets('显示 BPM 标签', (WidgetTester tester) async {
