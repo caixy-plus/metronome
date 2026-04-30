@@ -4,6 +4,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import '../../models/sound_type.dart';
 import '../../providers/metronome_provider.dart';
+import '../../providers/theme_provider.dart';
 import '../../utils/update_service.dart';
 import '../../widgets/sound_type_tile.dart';
 import '../../widgets/update_dialog.dart';
@@ -89,6 +90,8 @@ class _SettingsBottomSheetState extends State<SettingsBottomSheet> {
                 const SliverToBoxAdapter(child: SizedBox(height: 8)),
                 const SliverToBoxAdapter(child: _SoundTypeSelector()),
                 const SliverToBoxAdapter(child: SizedBox(height: 12)),
+                const SliverToBoxAdapter(child: _ThemeSelector()),
+                const SliverToBoxAdapter(child: SizedBox(height: 12)),
                 SliverToBoxAdapter(
                   child: Center(
                     child: Padding(
@@ -164,7 +167,6 @@ class _SoundTypeSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).extension<AppColors>()!;
     return Consumer<MetronomeProvider>(
       builder: (context, provider, _) {
         return SizedBox(
@@ -283,6 +285,129 @@ class _MoreSettingsSection extends StatelessWidget {
         const Spacer(),
         value,
       ],
+    );
+  }
+}
+
+class _ThemeSelector extends StatelessWidget {
+  const _ThemeSelector();
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).extension<AppColors>()!;
+    final themeProvider = context.watch<ThemeProvider>();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(Icons.palette, color: colors.primary, size: 18),
+            SizedBox(width: 8),
+            Text(
+              '主题',
+              style: TextStyle(
+                color: colors.primary,
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        Container(
+          margin: EdgeInsets.symmetric(horizontal: 16),
+          decoration: BoxDecoration(
+            color: colors.surface.withValues(alpha: 0.6),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: colors.border.withValues(alpha: 0.5), width: 1),
+          ),
+          padding: EdgeInsets.all(12),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              SizedBox(
+                width: 100,
+                child: _ThemeOption(
+                  label: '明亮',
+                  icon: Icons.wb_sunny,
+                  isSelected: themeProvider.themeMode == ThemeMode.light,
+                  onTap: () => themeProvider.setThemeMode(ThemeMode.light),
+                ),
+              ),
+              SizedBox(width: 8),
+              SizedBox(
+                width: 100,
+                child: _ThemeOption(
+                  label: '暗色',
+                  icon: Icons.nights_stay,
+                  isSelected: themeProvider.themeMode == ThemeMode.dark,
+                  onTap: () => themeProvider.setThemeMode(ThemeMode.dark),
+                ),
+              ),
+              SizedBox(width: 8),
+              SizedBox(
+                width: 100,
+                child: _ThemeOption(
+                  label: '自动',
+                  icon: Icons.brightness_auto,
+                  isSelected: themeProvider.themeMode == ThemeMode.system,
+                  onTap: () => themeProvider.setThemeMode(ThemeMode.system),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ThemeOption extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _ThemeOption({
+    required this.label,
+    required this.icon,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).extension<AppColors>()!;
+    return TextButton(
+      onPressed: onTap,
+      style: TextButton.styleFrom(
+        padding: EdgeInsets.symmetric(vertical: 10),
+        backgroundColor: isSelected ? colors.primary.withValues(alpha: 0.15) : Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+          side: BorderSide(
+            color: isSelected ? colors.primary : colors.border,
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: isSelected ? colors.primary : colors.textSecondary, size: 20),
+          SizedBox(height: 4),
+          Text(
+            label,
+            style: TextStyle(
+              color: isSelected ? colors.primary : colors.textPrimary,
+              fontSize: 12,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
