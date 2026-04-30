@@ -126,7 +126,6 @@ class _RhythmWheelState extends State<_RhythmWheel> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).extension<AppColors>()!;
     return RepaintBoundary(
       child: SizedBox(
         width: 56,
@@ -216,7 +215,6 @@ class _BeatUnitWheelState extends State<_BeatUnitWheel> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).extension<AppColors>()!;
     return RepaintBoundary(
       child: SizedBox(
         width: 56,
