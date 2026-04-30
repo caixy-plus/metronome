@@ -65,11 +65,6 @@
               </Directory>
             </Directory>
             <Directory Id="D_flutter_assets_packages_flutter_soloud" Name="flutter_soloud">
-              <Directory Id="D_flutter_assets_packages_flutter_soloud_web" Name="web">
-                <Component Id="C_flutter_assets_packages_flutter_soloud_web_libflutter_soloud_plugin_js" Guid="*"><File Id="F_C_flutter_assets_packages_flutter_soloud_web_libflutter_soloud_plugin_js" Source="$(var.SourceDir)/data/flutter_assets/packages/flutter_soloud/web/libflutter_soloud_plugin.js" KeyPath="yes" /></Component>
-                <Component Id="C_flutter_assets_packages_flutter_soloud_web_libflutter_soloud_plugin_wasm" Guid="*"><File Id="F_C_flutter_assets_packages_flutter_soloud_web_libflutter_soloud_plugin_wasm" Source="$(var.SourceDir)/data/flutter_assets/packages/flutter_soloud/web/libflutter_soloud_plugin.wasm" KeyPath="yes" /></Component>
-                <Component Id="C_flutter_assets_packages_flutter_soloud_web_worker_dart_js" Guid="*"><File Id="F_C_flutter_assets_packages_flutter_soloud_web_worker_dart_js" Source="$(var.SourceDir)/data/flutter_assets/packages/flutter_soloud/web/worker.dart.js" KeyPath="yes" /></Component>
-              </Directory>
             </Directory>
           </Directory>
           <Directory Id="D_flutter_assets_shaders" Name="shaders">
@@ -134,9 +129,6 @@
       <ComponentRef Id="C_flutter_assets_assets_sounds_woodblock_click_low_wav" />
       <ComponentRef Id="C_flutter_assets_fonts_MaterialIcons_Regular_otf" />
       <ComponentRef Id="C_flutter_assets_packages_cupertino_icons_assets_CupertinoIcons_ttf" />
-      <ComponentRef Id="C_flutter_assets_packages_flutter_soloud_web_libflutter_soloud_plugin_js" />
-      <ComponentRef Id="C_flutter_assets_packages_flutter_soloud_web_libflutter_soloud_plugin_wasm" />
-      <ComponentRef Id="C_flutter_assets_packages_flutter_soloud_web_worker_dart_js" />
       <ComponentRef Id="C_flutter_assets_shaders_ink_sparkle_frag" />
       <ComponentRef Id="C_flutter_assets_shaders_stretch_effect_frag" />
     </ComponentGroup>
