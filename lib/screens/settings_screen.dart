@@ -46,6 +46,10 @@ class SettingsScreen extends StatelessWidget {
               SizedBox(height: 16),
               _SoundTypeSelector(),
               SizedBox(height: 32),
+              _SectionTitle(icon: Icons.palette, title: '主题'),
+              SizedBox(height: 16),
+              _ThemeSelector(),
+              SizedBox(height: 32),
               _SectionTitle(icon: Icons.info_outline, title: '音效介绍'),
               SizedBox(height: 16),
               _SoundTypeInfo(),
@@ -345,33 +349,33 @@ class _ThemeOption extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<AppColors>()!;
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
+    return TextButton(
+      onPressed: onTap,
+      style: TextButton.styleFrom(
         padding: EdgeInsets.symmetric(vertical: 12),
-        decoration: BoxDecoration(
-          color: isSelected ? colors.primary.withValues(alpha: 0.15) : Colors.transparent,
+        backgroundColor: isSelected ? colors.primary.withValues(alpha: 0.15) : Colors.transparent,
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
+          side: BorderSide(
             color: isSelected ? colors.primary : colors.border,
             width: isSelected ? 2 : 1,
           ),
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, color: isSelected ? colors.primary : colors.textSecondary, size: 20),
-            SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                color: isSelected ? colors.primary : colors.textPrimary,
-                fontSize: 12,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              ),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: isSelected ? colors.primary : colors.textSecondary, size: 20),
+          SizedBox(height: 4),
+          Text(
+            label,
+            style: TextStyle(
+              color: isSelected ? colors.primary : colors.textPrimary,
+              fontSize: 12,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
