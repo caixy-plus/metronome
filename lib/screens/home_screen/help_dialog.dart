@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../../theme/app_colors.dart';
 
 /// 帮助对话框 - Cyber-Noir 风格
 class HelpDialog extends StatefulWidget {
@@ -41,6 +42,7 @@ class _HelpDialogState extends State<HelpDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).extension<AppColors>()!;
     return Dialog(
       backgroundColor: Colors.transparent,
       child: ClipRRect(
@@ -51,24 +53,24 @@ class _HelpDialogState extends State<HelpDialog> {
             constraints: const BoxConstraints(maxWidth: 400, maxHeight: 600),
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: const Color(0xFF1A1A1A).withValues(alpha: 0.9),
+              color: colors.surface.withValues(alpha: 0.9),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: const Color(0xFF00F0FF).withValues(alpha: 0.3),
+                color: colors.primary.withValues(alpha: 0.3),
                 width: 1,
               ),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Row(
+                Row(
                   children: [
-                    Icon(Icons.help_outline, color: Color(0xFF00F0FF), size: 24),
+                    Icon(Icons.help_outline, color: colors.primary, size: 24),
                     SizedBox(width: 12),
                     Text(
                       '使用帮助',
                       style: TextStyle(
-                        color: Color(0xFF00F0FF),
+                        color: colors.primary,
                         fontSize: 20,
                         fontWeight: FontWeight.w300,
                         letterSpacing: 2,
@@ -77,17 +79,17 @@ class _HelpDialogState extends State<HelpDialog> {
                   ],
                 ),
                 const SizedBox(height: 20),
-                const Divider(color: Color(0xFF333333)),
+                Divider(color: colors.border),
                 const SizedBox(height: 16),
                 Expanded(
                   child: _isLoading
-                      ? const Center(child: CircularProgressIndicator(color: Color(0xFF00F0FF)))
+                      ? Center(child: CircularProgressIndicator(color: colors.primary))
                       : SingleChildScrollView(child: HelpContentBuilder(content: _helpContent)),
                 ),
                 const SizedBox(height: 16),
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('关闭', style: TextStyle(color: Color(0xFF00F0FF), fontSize: 16)),
+                  child: Text('关闭', style: TextStyle(color: colors.primary, fontSize: 16)),
                 ),
               ],
             ),
@@ -106,6 +108,7 @@ class HelpContentBuilder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).extension<AppColors>()!;
     final sections = _parseContent(content);
 
     return Column(
@@ -116,7 +119,7 @@ class HelpContentBuilder extends StatelessWidget {
             padding: const EdgeInsets.only(top: 16, bottom: 8),
             child: Text(
               section.substring(3),
-              style: const TextStyle(color: Color(0xFF00F0FF), fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(color: colors.primary, fontSize: 18, fontWeight: FontWeight.bold),
             ),
           );
         } else if (section.startsWith('### ')) {
@@ -124,11 +127,11 @@ class HelpContentBuilder extends StatelessWidget {
             padding: const EdgeInsets.only(top: 12, bottom: 4),
             child: Row(
               children: [
-                const Icon(Icons.star, color: Color(0xFF00F0FF), size: 16),
+                Icon(Icons.star, color: colors.primary, size: 16),
                 const SizedBox(width: 8),
                 Text(
                   section.substring(4),
-                  style: const TextStyle(color: Color(0xFF00F0FF), fontSize: 15, fontWeight: FontWeight.bold),
+                  style: TextStyle(color: colors.primary, fontSize: 15, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
@@ -138,7 +141,7 @@ class HelpContentBuilder extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: 4),
             child: Text(
               section.replaceAll('|', '  ').trim(),
-              style: const TextStyle(color: Color(0xFFCCCCCC), fontSize: 12),
+              style: TextStyle(color: colors.textPrimary, fontSize: 12),
             ),
           );
         } else if (section.trim().isEmpty) {
@@ -148,7 +151,7 @@ class HelpContentBuilder extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: 2),
             child: Text(
               section,
-              style: const TextStyle(color: Color(0xFFCCCCCC), fontSize: 13, height: 1.5),
+              style: TextStyle(color: colors.textPrimary, fontSize: 13, height: 1.5),
             ),
           );
         }

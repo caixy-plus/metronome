@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../theme/app_colors.dart';
 
 /// Web 音频解锁界面
 class WebUnlockScreen extends StatelessWidget {
@@ -8,27 +9,28 @@ class WebUnlockScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).extension<AppColors>()!;
     return Scaffold(
-      backgroundColor: const Color(0xFF0D0D0D),
+      backgroundColor: colors.background,
       body: GestureDetector(
         onTap: onUnlock,
         child: Stack(
           children: [
-            CustomPaint(painter: CyberNoirBackgroundPainter(), size: MediaQuery.of(context).size),
-            Container(color: const Color(0xFF0D0D0D).withValues(alpha: 0.7)),
+            CustomPaint(painter: CyberNoirBackgroundPainter(colors: colors), size: MediaQuery.of(context).size),
+            Container(color: colors.background.withValues(alpha: 0.7)),
             Center(
               child: Container(
                 padding: const EdgeInsets.all(32),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF1A1A1A).withValues(alpha: 0.95),
+                  color: colors.surface.withValues(alpha: 0.95),
                   borderRadius: BorderRadius.circular(24),
                   border: Border.all(
-                    color: const Color(0xFF00F0FF).withValues(alpha: 0.5),
+                    color: colors.primary.withValues(alpha: 0.5),
                     width: 2,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF00F0FF).withValues(alpha: 0.3),
+                      color: colors.primary.withValues(alpha: 0.3),
                       blurRadius: 40,
                       spreadRadius: 10,
                     ),
@@ -37,31 +39,31 @@ class WebUnlockScreen extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.touch_app, color: Color(0xFF00F0FF), size: 80),
+                    Icon(Icons.touch_app, color: colors.primary, size: 80),
                     const SizedBox(height: 24),
-                    const Text(
+                    Text(
                       'TAP TO START',
                       style: TextStyle(
-                        color: Color(0xFF00F0FF),
+                        color: colors.primary,
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 4,
                       ),
                     ),
                     const SizedBox(height: 16),
-                    const Text(
+                    Text(
                       '点击屏幕任意位置\n以启用节拍音效',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: Color(0xFF888888),
+                        color: colors.textSecondary,
                         fontSize: 14,
                         height: 1.6,
                       ),
                     ),
                     const SizedBox(height: 8),
-                    const Text(
+                    Text(
                       '（Web 浏览器自动播放策略限制）',
-                      style: TextStyle(color: Color(0xFF555555), fontSize: 12),
+                      style: TextStyle(color: colors.textDisabled, fontSize: 12),
                     ),
                   ],
                 ),
@@ -76,9 +78,13 @@ class WebUnlockScreen extends StatelessWidget {
 
 /// Cyber-Noir 背景画家 - 深邃磨砂黑 + 光晕效果
 class CyberNoirBackgroundPainter extends CustomPainter {
+  final AppColors colors;
+
+  CyberNoirBackgroundPainter({required this.colors});
+
   @override
   void paint(Canvas canvas, Size size) {
-    final bgPaint = Paint()..color = const Color(0xFF0D0D0D)..style = PaintingStyle.fill;
+    final bgPaint = Paint()..color = colors.background..style = PaintingStyle.fill;
     canvas.drawRect(Offset.zero & size, bgPaint);
 
     final topGlow = Paint()
@@ -86,8 +92,8 @@ class CyberNoirBackgroundPainter extends CustomPainter {
         center: const Alignment(0, -1.5),
         radius: 1.2,
         colors: [
-          const Color(0xFF00F0FF).withValues(alpha: 0.15),
-          const Color(0xFF00F0FF).withValues(alpha: 0),
+          colors.primary.withValues(alpha: 0.15),
+          colors.primary.withValues(alpha: 0),
         ],
       ).createShader(Offset.zero & size);
     canvas.drawRect(Offset.zero & size, topGlow);
@@ -97,14 +103,14 @@ class CyberNoirBackgroundPainter extends CustomPainter {
         center: const Alignment(0, 1.5),
         radius: 1.2,
         colors: [
-          const Color(0xFF8B00FF).withValues(alpha: 0.1),
-          const Color(0xFF8B00FF).withValues(alpha: 0),
+          colors.primary.withValues(alpha: 0.1),
+          colors.primary.withValues(alpha: 0),
         ],
       ).createShader(Offset.zero & size);
     canvas.drawRect(Offset.zero & size, bottomGlow);
 
     final gridPaint = Paint()
-      ..color = const Color(0xFF1A1A1A)
+      ..color = colors.surface
       ..strokeWidth = 0.5
       ..style = PaintingStyle.stroke;
 
@@ -118,5 +124,7 @@ class CyberNoirBackgroundPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant CyberNoirBackgroundPainter oldDelegate) {
+    return oldDelegate.colors != colors;
+  }
 }

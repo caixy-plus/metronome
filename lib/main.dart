@@ -5,7 +5,9 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:window_manager/window_manager.dart';
 import 'providers/metronome_provider.dart';
+import 'providers/theme_provider.dart';
 import 'screens/home_screen.dart';
+import 'theme/app_colors.dart';
 import 'utils/notification_service.dart';
 import 'utils/update_service.dart';
 import 'widgets/update_dialog.dart';
@@ -20,15 +22,7 @@ Future<void> main() async {
     DeviceOrientation.portraitDown,
   ]);
 
-  // 3. 设置状态栏样式
-  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    statusBarColor: Colors.transparent,
-    statusBarIconBrightness: Brightness.light,
-    systemNavigationBarColor: Color(0xFF0D0D0D),
-    systemNavigationBarIconBrightness: Brightness.light,
-  ));
-
-  // 4. 初始化通知服务
+  // 3. 初始化通知服务
   await NotificationService.init();
 
   // 5. 桌面端：配置窗口初始化（防止闪烁）
@@ -114,13 +108,12 @@ class _MetronomeAppState extends State<MetronomeApp> with WidgetsBindingObserver
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
-    if (state == AppLifecycleState.paused || state == AppLifecycleState.detached) {
-      // 强制卸载整个 HomeScreen 树，断开旧 Provider 的引用
+    // 只在真正销毁时卸载，进入后台保持运行和通知快捷操作
+    if (state == AppLifecycleState.detached) {
       if (_showHome) {
         setState(() => _showHome = false);
       }
     } else if (state == AppLifecycleState.resumed) {
-      // 重新挂载，UniqueKey() 强制创建全新的 Provider 实例
       if (!_showHome) {
         setState(() => _showHome = true);
       }
@@ -129,25 +122,52 @@ class _MetronomeAppState extends State<MetronomeApp> with WidgetsBindingObserver
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      navigatorKey: _navigatorKey,
-      title: 'Metronome',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.deepPurple,
-          brightness: Brightness.dark,
-        ),
-        useMaterial3: true,
-        scaffoldBackgroundColor: const Color(0xFF0D0D0D),
+    return ChangeNotifierProvider(
+      create: (_) => ThemeProvider(),
+      child: Consumer<ThemeProvider>(
+        builder: (context, themeProvider, _) {
+          final brightness = themeProvider.effectiveBrightness;
+          final isDark = brightness == Brightness.dark;
+          final colors = isDark ? AppColors.dark : AppColors.light;
+
+          // 动态同步系统栏样式
+          SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+            statusBarColor: Colors.transparent,
+            statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+            systemNavigationBarColor: colors.background,
+            systemNavigationBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+          ));
+
+          return MaterialApp(
+            navigatorKey: _navigatorKey,
+            title: 'Metronome',
+            debugShowCheckedModeBanner: false,
+            theme: _buildThemeData(Brightness.light),
+            darkTheme: _buildThemeData(Brightness.dark),
+            themeMode: themeProvider.themeMode,
+            home: _showHome
+                ? ChangeNotifierProvider(
+                    key: UniqueKey(),
+                    create: (_) => MetronomeProvider()..init(),
+                    child: const HomeScreen(),
+                  )
+                : Scaffold(backgroundColor: colors.background),
+          );
+        },
       ),
-      home: _showHome
-          ? ChangeNotifierProvider(
-              key: UniqueKey(), // 每次进入强制生成全新实例，旧的必须滚蛋
-              create: (_) => MetronomeProvider()..init(),
-              child: const HomeScreen(),
-            )
-          : const Scaffold(backgroundColor: Color(0xFF0D0D0D)),
+    );
+  }
+
+  ThemeData _buildThemeData(Brightness brightness) {
+    final colors = brightness == Brightness.dark ? AppColors.dark : AppColors.light;
+    return ThemeData(
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: Colors.deepPurple,
+        brightness: brightness,
+      ),
+      useMaterial3: true,
+      scaffoldBackgroundColor: colors.background,
+      extensions: [colors],
     );
   }
 }

@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../providers/metronome_provider.dart';
 import '../utils/tempo_term.dart';
+import '../theme/app_colors.dart';
 
 /// BPM控制组件 - Cyber-Noir 版本（支持拖动）
 class BpmDial extends StatelessWidget {
@@ -12,6 +13,7 @@ class BpmDial extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).extension<AppColors>()!;
     return Consumer<MetronomeProvider>(
       builder: (context, provider, _) {
         final bpmProgress = (provider.bpm - 40) / (240 - 40); // 40-240 归一化
@@ -106,7 +108,7 @@ class BpmDial extends StatelessWidget {
             _TempoTermText(
               text: tempoInfo.$1,
               fontSize: 18,
-              color: const Color(0xFF00F0FF),
+              color: colors.primary,
               letterSpacing: 2,
             ),
             const SizedBox(height: 4),
@@ -114,7 +116,7 @@ class BpmDial extends StatelessWidget {
             _TempoTermText(
               text: tempoInfo.$2,
               fontSize: 12,
-              color: const Color(0xFF666666),
+              color: colors.textSecondary,
               letterSpacing: 1,
             ),
             const SizedBox(height: 16),
@@ -171,6 +173,7 @@ class _TempoTermText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).extension<AppColors>()!;
     return FittedBox(
       fit: BoxFit.scaleDown,
       alignment: Alignment.center,
@@ -259,6 +262,7 @@ class _DraggableBpmArcState extends State<_DraggableBpmArc> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).extension<AppColors>()!;
     return SizedBox(
       width: _size.width,
       height: _size.height,
@@ -284,6 +288,7 @@ class _DraggableBpmArcState extends State<_DraggableBpmArc> {
               painter: _BpmArcPainter(
                 progress: widget.bpmProgress,
                 isPlaying: widget.isPlaying,
+                colors: colors,
               ),
             ),
             // 拖动热点（更大的透明区域方便拖动）
@@ -292,6 +297,7 @@ class _DraggableBpmArcState extends State<_DraggableBpmArc> {
               painter: _BpmDragHotspotPainter(
                 progress: widget.bpmProgress,
                 bpm: widget.bpm,
+                colors: colors,
               ),
             ),
             // BPM 数字 - 使用 FittedBox 防止溢出
@@ -305,10 +311,10 @@ class _DraggableBpmArcState extends State<_DraggableBpmArc> {
                     maxLines: 1,
                     softWrap: false,
                     textScaler: TextScaler.noScaling,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 48,
                       fontWeight: FontWeight.w200,
-                      color: Color(0xFF00F0FF),
+                      color: colors.primary,
                       letterSpacing: 2,
                       height: 1.0,
                     ),
@@ -322,9 +328,9 @@ class _DraggableBpmArcState extends State<_DraggableBpmArc> {
                     maxLines: 1,
                     softWrap: false,
                     textScaler: TextScaler.noScaling,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
-                      color: Color(0xFF666666),
+                      color: colors.textSecondary,
                       letterSpacing: 3,
                       height: 1.0,
                     ),
@@ -343,8 +349,9 @@ class _DraggableBpmArcState extends State<_DraggableBpmArc> {
 class _BpmDragHotspotPainter extends CustomPainter {
   final double progress;
   final int bpm;
+  final AppColors colors;
 
-  _BpmDragHotspotPainter({required this.progress, required this.bpm});
+  _BpmDragHotspotPainter({required this.progress, required this.bpm, required this.colors});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -361,13 +368,13 @@ class _BpmDragHotspotPainter extends CustomPainter {
 
     // 绘制大透明热点区域（方便拖动）
     final hotspotPaint = Paint()
-      ..color = const Color(0xFF00F0FF).withValues(alpha: 0.3)
+      ..color = colors.primary.withValues(alpha: 0.3)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8);
     canvas.drawCircle(point, 16, hotspotPaint);
 
     // 绘制实心圆点
     final dotPaint = Paint()
-      ..color = const Color(0xFF00F0FF)
+      ..color = colors.primary
       ..style = PaintingStyle.fill;
     canvas.drawCircle(point, 8, dotPaint);
 
@@ -380,7 +387,7 @@ class _BpmDragHotspotPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _BpmDragHotspotPainter oldDelegate) {
-    return oldDelegate.progress != progress || oldDelegate.bpm != bpm;
+    return oldDelegate.progress != progress || oldDelegate.bpm != bpm || oldDelegate.colors != colors;
   }
 }
 
@@ -388,8 +395,9 @@ class _BpmDragHotspotPainter extends CustomPainter {
 class _BpmArcPainter extends CustomPainter {
   final double progress;
   final bool isPlaying;
+  final AppColors colors;
 
-  _BpmArcPainter({required this.progress, required this.isPlaying});
+  _BpmArcPainter({required this.progress, required this.isPlaying, required this.colors});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -398,7 +406,7 @@ class _BpmArcPainter extends CustomPainter {
 
     // 背景弧
     final bgPaint = Paint()
-      ..color = const Color(0xFF1A1A1A)
+      ..color = colors.surface
       ..strokeWidth = 4
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
@@ -417,8 +425,8 @@ class _BpmArcPainter extends CustomPainter {
           startAngle: math.pi * 0.75,
           endAngle: math.pi * 0.75 + math.pi * 1.5 * progress,
           colors: [
-            const Color(0xFF00F0FF),
-            isPlaying ? const Color(0xFF00F0FF) : const Color(0xFF0088AA),
+            colors.primary,
+            isPlaying ? colors.primary : colors.primary,
           ],
         ).createShader(Rect.fromCircle(center: center, radius: radius))
         ..strokeWidth = 4
@@ -440,7 +448,7 @@ class _BpmArcPainter extends CustomPainter {
           center.dy + radius * math.sin(angle),
         );
         final glowPaint = Paint()
-          ..color = const Color(0xFF00F0FF)
+          ..color = colors.primary
           ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6);
         canvas.drawCircle(glowPoint, 4, glowPaint);
       }
@@ -449,7 +457,7 @@ class _BpmArcPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _BpmArcPainter oldDelegate) {
-    return oldDelegate.progress != progress || oldDelegate.isPlaying != isPlaying;
+    return oldDelegate.progress != progress || oldDelegate.isPlaying != isPlaying || oldDelegate.colors != colors;
   }
 }
 
@@ -469,6 +477,7 @@ class _FrostedBpmButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).extension<AppColors>()!;
     final isEnabled = onPressed != null;
 
     return GestureDetector(
@@ -484,18 +493,18 @@ class _FrostedBpmButton extends StatelessWidget {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: isEnabled
-                  ? const Color(0xFF1A1A1A).withValues(alpha: 0.6)
-                  : const Color(0xFF0D0D0D).withValues(alpha: 0.4),
+                  ? colors.surface.withValues(alpha: 0.6)
+                  : colors.background.withValues(alpha: 0.4),
               border: Border.all(
                 color: isEnabled
-                    ? const Color(0xFF00F0FF).withValues(alpha: 0.3)
-                    : const Color(0xFF333333),
+                    ? colors.primary.withValues(alpha: 0.3)
+                    : colors.border,
                 width: 1.5,
               ),
               boxShadow: isEnabled
                   ? [
                       BoxShadow(
-                        color: const Color(0xFF00F0FF).withValues(alpha: 0.1),
+                        color: colors.primary.withValues(alpha: 0.1),
                         blurRadius: 8,
                         spreadRadius: 1,
                       ),
@@ -506,8 +515,8 @@ class _FrostedBpmButton extends StatelessWidget {
               icon,
               size: 28,
               color: isEnabled
-                  ? const Color(0xFF00F0FF)
-                  : const Color(0xFF444444),
+                  ? colors.primary
+                  : colors.textDisabled,
             ),
           ),
         ),
@@ -555,6 +564,7 @@ class _TapButtonState extends State<_TapButton> with SingleTickerProviderStateMi
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).extension<AppColors>()!;
     return GestureDetector(
       onTap: _handleTap,
       child: AnimatedBuilder(
@@ -568,26 +578,26 @@ class _TapButtonState extends State<_TapButton> with SingleTickerProviderStateMi
                 height: 64,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: const Color(0xFF1A1A1A).withValues(alpha: 0.6),
+                  color: colors.surface.withValues(alpha: 0.6),
                   border: Border.all(
-                    color: Color(0xFF00F0FF).withValues(alpha: _glowAnimation.value),
+                    color: colors.primary.withValues(alpha: _glowAnimation.value),
                     width: 2,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Color(0xFF00F0FF).withValues(alpha: 0.3 * _glowAnimation.value),
+                      color: colors.primary.withValues(alpha: 0.3 * _glowAnimation.value),
                       blurRadius: 12 * _glowAnimation.value,
                       spreadRadius: 2 * _glowAnimation.value,
                     ),
                   ],
                 ),
-                child: const Center(
+                child: Center(
                   child: Text(
                     'TAP',
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF00F0FF),
+                      color: colors.primary,
                       letterSpacing: 1,
                     ),
                   ),
@@ -613,6 +623,7 @@ class _SilentModeButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).extension<AppColors>()!;
     return GestureDetector(
       onTap: onToggle,
       child: ClipOval(
@@ -624,18 +635,18 @@ class _SilentModeButton extends StatelessWidget {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: isSilent
-                  ? const Color(0xFF00F0FF).withValues(alpha: 0.2)
-                  : const Color(0xFF1A1A1A).withValues(alpha: 0.6),
+                  ? colors.primary.withValues(alpha: 0.2)
+                  : colors.surface.withValues(alpha: 0.6),
               border: Border.all(
                 color: isSilent
-                    ? const Color(0xFF00F0FF)
-                    : const Color(0xFF00F0FF).withValues(alpha: 0.3),
+                    ? colors.primary
+                    : colors.primary.withValues(alpha: 0.3),
                 width: 2,
               ),
               boxShadow: isSilent
                   ? [
                       BoxShadow(
-                        color: const Color(0xFF00F0FF).withValues(alpha: 0.5),
+                        color: colors.primary.withValues(alpha: 0.5),
                         blurRadius: 16,
                         spreadRadius: 2,
                       ),
@@ -645,7 +656,7 @@ class _SilentModeButton extends StatelessWidget {
             child: Icon(
               isSilent ? Icons.volume_off : Icons.volume_up,
               size: 28,
-              color: isSilent ? const Color(0xFF00F0FF) : const Color(0xFF666666),
+              color: isSilent ? colors.primary : colors.textSecondary,
             ),
           ),
         ),

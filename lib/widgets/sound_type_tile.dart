@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/sound_type.dart';
+import '../theme/app_colors.dart';
 
 enum SoundTypeTileStyle {
   /// 横向滚动卡片样式 (home_screen)
@@ -40,13 +41,14 @@ class SoundTypeTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).extension<AppColors>()!;
     return style == SoundTypeTileStyle.horizontalCard
-        ? _buildHorizontalCard()
-        : _buildVerticalItem();
+        ? _buildHorizontalCard(colors)
+        : _buildVerticalItem(colors);
   }
 
   /// 横向滚动卡片样式 (home_screen)
-  Widget _buildHorizontalCard() {
+  Widget _buildHorizontalCard(AppColors colors) {
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
@@ -55,17 +57,17 @@ class SoundTypeTile extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
           color: isSelected
-              ? const Color(0xFF00F0FF).withValues(alpha: 0.15)
-              : const Color(0xFF252525),
+              ? colors.primary.withValues(alpha: 0.15)
+              : colors.surfaceVariant,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected ? const Color(0xFF00F0FF) : const Color(0xFF333333),
+            color: isSelected ? colors.primary : colors.border,
             width: isSelected ? 2 : 1,
           ),
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: const Color(0xFF00F0FF).withValues(alpha: 0.3),
+                    color: colors.primary.withValues(alpha: 0.3),
                     blurRadius: 12,
                     spreadRadius: 0,
                   ),
@@ -81,16 +83,16 @@ class SoundTypeTile extends StatelessWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: isSelected
-                    ? const Color(0xFF00F0FF).withValues(alpha: 0.2)
-                    : const Color(0xFF2A2A2A),
+                    ? colors.primary.withValues(alpha: 0.2)
+                    : colors.surfaceVariant,
                 border: Border.all(
-                  color: isSelected ? const Color(0xFF00F0FF) : const Color(0xFF444444),
+                  color: isSelected ? colors.primary : colors.textDisabled,
                   width: 1.5,
                 ),
               ),
               child: Icon(
                 _getIcon(),
-                color: isSelected ? const Color(0xFF00F0FF) : const Color(0xFF888888),
+                color: isSelected ? colors.primary : colors.textSecondary,
                 size: 22,
               ),
             ),
@@ -98,7 +100,7 @@ class SoundTypeTile extends StatelessWidget {
             Text(
               type.displayName,
               style: TextStyle(
-                color: isSelected ? const Color(0xFF00F0FF) : const Color(0xFFCCCCCC),
+                color: isSelected ? colors.primary : colors.textPrimary,
                 fontSize: 11,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               ),
@@ -110,18 +112,18 @@ class SoundTypeTile extends StatelessWidget {
   }
 
   /// 垂直列表项样式 (settings_screen)
-  Widget _buildVerticalItem() {
+  Widget _buildVerticalItem(AppColors colors) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
           color: isSelected
-              ? const Color(0xFF00F0FF).withValues(alpha: 0.1)
+              ? colors.primary.withValues(alpha: 0.1)
               : Colors.transparent,
           border: Border(
             bottom: BorderSide(
-              color: const Color(0xFF333333).withValues(alpha: 0.3),
+              color: colors.border.withValues(alpha: 0.3),
               width: 0.5,
             ),
           ),
@@ -134,16 +136,16 @@ class SoundTypeTile extends StatelessWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: isSelected
-                    ? const Color(0xFF00F0FF).withValues(alpha: 0.2)
-                    : const Color(0xFF2A2A2A),
+                    ? colors.primary.withValues(alpha: 0.2)
+                    : colors.surfaceVariant,
                 border: Border.all(
-                  color: isSelected ? const Color(0xFF00F0FF) : const Color(0xFF444444),
+                  color: isSelected ? colors.primary : colors.textDisabled,
                   width: 1.5,
                 ),
               ),
               child: Icon(
                 _getIcon(),
-                color: isSelected ? const Color(0xFF00F0FF) : const Color(0xFF888888),
+                color: isSelected ? colors.primary : colors.textSecondary,
                 size: 20,
               ),
             ),
@@ -155,7 +157,7 @@ class SoundTypeTile extends StatelessWidget {
                   Text(
                     type.displayName,
                     style: TextStyle(
-                      color: isSelected ? const Color(0xFF00F0FF) : const Color(0xFFEEEEEE),
+                      color: isSelected ? colors.primary : colors.textPrimary,
                       fontSize: 15,
                       fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                     ),
@@ -163,8 +165,8 @@ class SoundTypeTile extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     type.description,
-                    style: const TextStyle(
-                      color: Color(0xFF888888),
+                    style: TextStyle(
+                      color: colors.textSecondary,
                       fontSize: 12,
                     ),
                   ),
@@ -172,9 +174,9 @@ class SoundTypeTile extends StatelessWidget {
               ),
             ),
             if (isSelected)
-              const Icon(
+              Icon(
                 Icons.check_circle,
-                color: Color(0xFF00F0FF),
+                color: colors.primary,
                 size: 22,
               ),
           ],

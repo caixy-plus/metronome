@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../providers/metronome_provider.dart';
+import '../theme/app_colors.dart';
 
 /// 节拍类型选择器 - 律动轮 (Rhythm Wheel)
 /// 使用 FixedExtentScrollPhysics 确保磁吸归位
@@ -10,15 +11,16 @@ class BeatTypeSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).extension<AppColors>()!;
     return Consumer<MetronomeProvider>(
       builder: (context, provider, _) {
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
-            color: const Color(0xFF1A1A1A),
+            color: colors.surface,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: const Color(0xFF333333),
+              color: colors.border,
               width: 1,
             ),
           ),
@@ -53,7 +55,8 @@ class BeatTypeSelector extends StatelessWidget {
 class _GlowingDivider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return const SizedBox(
+    final colors = Theme.of(context).extension<AppColors>()!;
+    return SizedBox(
       width: 20,
       height: 80,
       child: Center(
@@ -62,7 +65,7 @@ class _GlowingDivider extends StatelessWidget {
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.w200,
-            color: Color(0xFF00F0FF),
+            color: colors.primary,
           ),
         ),
       ),
@@ -123,6 +126,7 @@ class _RhythmWheelState extends State<_RhythmWheel> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).extension<AppColors>()!;
     return RepaintBoundary(
       child: SizedBox(
         width: 56,
@@ -212,6 +216,7 @@ class _BeatUnitWheelState extends State<_BeatUnitWheel> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).extension<AppColors>()!;
     return RepaintBoundary(
       child: SizedBox(
         width: 56,
@@ -261,17 +266,18 @@ class _WheelItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).extension<AppColors>()!;
     return AnimatedContainer(
       duration: const Duration(milliseconds: 150),
       curve: Curves.easeOut,
       decoration: BoxDecoration(
         color: isSelected
-            ? const Color(0xFF00F0FF).withValues(alpha: 0.15)
+            ? colors.primary.withValues(alpha: 0.15)
             : Colors.transparent,
         borderRadius: BorderRadius.circular(8),
         border: isSelected
             ? Border.all(
-                color: const Color(0xFF00F0FF).withValues(alpha: 0.4),
+                color: colors.primary.withValues(alpha: 0.4),
                 width: 1,
               )
             : null,
@@ -283,8 +289,8 @@ class _WheelItem extends StatelessWidget {
             fontSize: isSelected ? 22 : 16,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.w400,
             color: isSelected
-                ? const Color(0xFF00F0FF)
-                : const Color(0xFF00F0FF).withValues(alpha: 0.4),
+                ? colors.primary
+                : colors.primary.withValues(alpha: 0.4),
           ),
         ),
       ),

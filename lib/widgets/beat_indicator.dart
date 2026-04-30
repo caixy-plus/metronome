@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/metronome_provider.dart';
+import '../theme/app_colors.dart';
 
 /// 节拍指示器 - 固定高度换行版本
 /// 圆点大小固定，行数根据拍数自动增加（最多2行）
@@ -9,6 +10,7 @@ class BeatIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).extension<AppColors>()!;
     return RepaintBoundary(
       child: Consumer<MetronomeProvider>(
         builder: (context, provider, _) {
@@ -80,15 +82,16 @@ class _BeatDot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).extension<AppColors>()!;
     final activeColor = isAccent
-        ? const Color(0xFFFF3366)
-        : const Color(0xFF00F0FF);
+        ? colors.accent
+        : colors.primary;
     final inactiveColor = isAccent
-        ? const Color(0xFFFF3366).withValues(alpha: 0.2)
-        : const Color(0xFF00F0FF).withValues(alpha: 0.15);
+        ? colors.accent.withValues(alpha: 0.2)
+        : colors.primary.withValues(alpha: 0.15);
     final borderColor = isAccent
-        ? const Color(0xFFFF3366).withValues(alpha: 0.5)
-        : const Color(0xFF00F0FF).withValues(alpha: 0.3);
+        ? colors.accent.withValues(alpha: 0.5)
+        : colors.primary.withValues(alpha: 0.3);
 
     const textSize = 11.0;
 

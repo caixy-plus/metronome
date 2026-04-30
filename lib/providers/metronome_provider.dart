@@ -38,6 +38,9 @@ class MetronomeProvider extends ChangeNotifier with WidgetsBindingObserver {
   Timer? _bpmDebounceTimer;
   int _bpmDebounceSeq = 0;
 
+  // 通知快捷操作订阅
+  StreamSubscription<void>? _notificationSub;
+
   /// 记录播放历史的列表，用于测试验证
   final List<bool> _playedAccents = [];
 
@@ -175,6 +178,12 @@ class MetronomeProvider extends ChangeNotifier with WidgetsBindingObserver {
   Future<void> init() async {
     await _audioService.init();
     await _loadSettings();
+
+    // 监听通知快捷操作（播放/暂停）
+    _notificationSub?.cancel();
+    _notificationSub = NotificationService.playPauseStream.listen((_) {
+      togglePlayPause();
+    });
   }
 
   /// Web 平台音频解锁初始化
@@ -497,10 +506,12 @@ class MetronomeProvider extends ChangeNotifier with WidgetsBindingObserver {
     stop();
     // 2. 移除生命周期观察者
     WidgetsBinding.instance.removeObserver(this);
-    // 3. 清理所有待处理的计时器
+    // 3. 清理所有待处理的计时器和通知订阅
     _bpmAdjustTimer?.cancel();
     _bpmDebounceTimer?.cancel();
     _bpmDebounceTimer = null;
+    _notificationSub?.cancel();
+    _notificationSub = null;
     // 注意：不要调用 _audioService.dispose()！AudioService 是全局单例，
     // 跟随 Provider 销毁会导致右滑返回后音频引擎被销毁，再次进入时无法恢复
     super.dispose();
@@ -511,9 +522,9 @@ class MetronomeProvider extends ChangeNotifier with WidgetsBindingObserver {
     // 当应用进入非活跃状态（后台/锁屏/切换应用）时，确保停止播放
     // 这可以防止右滑退出时计时器继续运行导致的双实例问题
     // stop() 是幂等的，直接调用即可，_isPlaying 检查是多余的
-    if (state == AppLifecycleState.paused ||
-        state == AppLifecycleState.detached) {
-      debugPrint('[MetronomeProvider] AppLifecycleState: $state, stopping playback');
+    // 只在真正销毁时停止，后台/切出应用不主动停播
+    if (state == AppLifecycleState.detached) {
+      debugPrint('[MetronomeProvider] AppLifecycleState: detached, stopping playback');
       stop();
       return;
     }

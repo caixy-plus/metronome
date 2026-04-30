@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/metronome_provider.dart';
+import '../../theme/app_colors.dart';
 
 /// Cyber-Noir 播放按钮 - 毛玻璃 + 水波纹
 class PlayButton extends StatefulWidget {
@@ -35,6 +36,7 @@ class _PlayButtonState extends State<PlayButton> with SingleTickerProviderStateM
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).extension<AppColors>()!;
     return Consumer<MetronomeProvider>(
       builder: (context, provider, _) {
         final isPlaying = provider.isPlaying;
@@ -70,7 +72,7 @@ class _PlayButtonState extends State<PlayButton> with SingleTickerProviderStateM
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: const Color(0xFF00F0FF)
+                            color: colors.primary
                                 .withValues(alpha: 1.0 - _rippleAnimation.value + 1.0),
                             width: 2,
                           ),
@@ -87,16 +89,16 @@ class _PlayButtonState extends State<PlayButton> with SingleTickerProviderStateM
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: isPlaying
-                            ? const Color(0xFF00F0FF).withValues(alpha: 0.2)
-                            : const Color(0xFF1A1A1A).withValues(alpha: 0.8),
+                            ? colors.primary.withValues(alpha: 0.2)
+                            : colors.surface.withValues(alpha: 0.8),
                         border: Border.all(
-                          color: isPlaying ? const Color(0xFF00F0FF) : const Color(0xFF333333),
+                          color: isPlaying ? colors.primary : colors.border,
                           width: 2,
                         ),
                         boxShadow: isPlaying
                             ? [
                                 BoxShadow(
-                                  color: const Color(0xFF00F0FF).withValues(alpha: 0.5),
+                                  color: colors.primary.withValues(alpha: 0.5),
                                   blurRadius: 20,
                                   spreadRadius: 2,
                                 ),
@@ -106,7 +108,7 @@ class _PlayButtonState extends State<PlayButton> with SingleTickerProviderStateM
                       child: Icon(
                         isPlaying ? Icons.pause : Icons.play_arrow,
                         size: 44,
-                        color: isPlaying ? const Color(0xFF00F0FF) : const Color(0xFF888888),
+                        color: isPlaying ? colors.primary : colors.textSecondary,
                       ),
                     ),
                   ),

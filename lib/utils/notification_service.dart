@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
@@ -11,24 +13,46 @@ class NotificationService {
   static const String _channelId = 'metronome_playback';
   static const String _channelName = 'Metronome Playback';
   static const int _notificationId = 1;
+  static const String _categoryId = 'playback_actions';
+
+  /// 通知快捷操作事件流
+  static final StreamController<void> _playPauseController =
+      StreamController<void>.broadcast();
+  static Stream<void> get playPauseStream => _playPauseController.stream;
 
   /// 初始化通知服务
   static Future<void> init() async {
     if (_isWindows) return;
 
     const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
-    const DarwinInitializationSettings iosSettings = DarwinInitializationSettings(
+    final DarwinInitializationSettings iosSettings = DarwinInitializationSettings(
       requestAlertPermission: false,
       requestSoundPermission: false,
       requestBadgePermission: false,
+      notificationCategories: [
+        DarwinNotificationCategory(
+          _categoryId,
+          actions: [
+            DarwinNotificationAction.plain('play_pause', '暂停 / 播放'),
+          ],
+        ),
+      ],
     );
-    const DarwinInitializationSettings macOSSettings = DarwinInitializationSettings(
+    final DarwinInitializationSettings macOSSettings = DarwinInitializationSettings(
       requestAlertPermission: false,
       requestSoundPermission: false,
       requestBadgePermission: false,
+      notificationCategories: [
+        DarwinNotificationCategory(
+          _categoryId,
+          actions: [
+            DarwinNotificationAction.plain('play_pause', '暂停 / 播放'),
+          ],
+        ),
+      ],
     );
 
-    const initSettings = InitializationSettings(
+    final initSettings = InitializationSettings(
       android: androidSettings,
       iOS: iosSettings,
       macOS: macOSSettings,
@@ -66,7 +90,9 @@ class NotificationService {
   }
 
   static void _onNotificationResponse(NotificationResponse response) {
-    // 点击通知的回调（目前不处理）
+    if (response.actionId == 'play_pause') {
+      _playPauseController.add(null);
+    }
   }
 
   static Future<void> _createNotificationChannel() async {
@@ -107,12 +133,20 @@ class NotificationService {
       category: AndroidNotificationCategory.service,
       visibility: NotificationVisibility.public,
       styleInformation: const BigTextStyleInformation(''),
+      actions: [
+        const AndroidNotificationAction(
+          'play_pause',
+          '暂停 / 播放',
+          showsUserInterface: true,
+        ),
+      ],
     );
 
     const DarwinNotificationDetails iosDetails = DarwinNotificationDetails(
       presentAlert: false,
       presentBadge: false,
       presentSound: false,
+      categoryIdentifier: _categoryId,
     );
 
     final NotificationDetails details = NotificationDetails(

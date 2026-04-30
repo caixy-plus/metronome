@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../providers/metronome_provider.dart';
+import '../theme/app_colors.dart';
 import '../widgets/bpm_dial.dart';
 import '../widgets/beat_type_selector.dart';
 import '../widgets/beat_indicator.dart';
@@ -67,19 +68,20 @@ class _MetronomeHome extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).extension<AppColors>()!;
     return Scaffold(
-      backgroundColor: const Color(0xFF0D0D0D),
+      backgroundColor: colors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.settings, color: Color(0xFF00F0FF)),
+          icon: Icon(Icons.settings, color: colors.primary),
           onPressed: () => _showSettingsSheet(context),
         ),
-        title: const Text(
+        title: Text(
           'METRONOME',
           style: TextStyle(
-            color: Color(0xFF00F0FF),
+            color: colors.primary,
             fontWeight: FontWeight.w300,
             letterSpacing: 8,
             fontSize: 20,
@@ -88,7 +90,7 @@ class _MetronomeHome extends StatelessWidget {
         centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.help_outline, color: Color(0xFF00F0FF)),
+            icon: Icon(Icons.help_outline, color: colors.primary),
             onPressed: () => _showHelpDialog(context),
           ),
         ],
@@ -106,7 +108,7 @@ class _MetronomeHome extends StatelessWidget {
               child: Stack(
                 children: [
                   Positioned.fill(
-                    child: CustomPaint(painter: CyberNoirBackgroundPainter()),
+                    child: CustomPaint(painter: CyberNoirBackgroundPainter(colors: colors)),
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
