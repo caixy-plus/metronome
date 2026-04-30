@@ -173,7 +173,6 @@ class _TempoTermText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).extension<AppColors>()!;
     return FittedBox(
       fit: BoxFit.scaleDown,
       alignment: Alignment.center,
