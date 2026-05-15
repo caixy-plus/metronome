@@ -157,26 +157,36 @@ jobs:
       - name: Build Windows
         run: flutter build windows --release
 
+      - name: Verify WiX Toolset
+        shell: pwsh
+        run: Get-Command heat, candle, light
+
+      - name: Generate WiX components
+        shell: pwsh
+        run: |
+          $buildDir = "build\windows\x64\runner\Release"
+          if (!(Test-Path $buildDir)) { $buildDir = "build\windows\runner\Release" }
+
+          heat dir "$buildDir" `
+            -cg ProductComponents -gg -scom -sreg -sfrag -srd -dr INSTALLFOLDER `
+            -out "wix\components.wxs"
+
       - name: Build MSI
         shell: pwsh
         run: |
-          # 安装并刷新路径
-          dotnet tool install --global wix --version 5.0.0
-          $env:PATH += ";$env:USERPROFILE\.dotnet\tools"
+          $version = "${{ github.ref_name }}".TrimStart('v')
+          $buildDir = "build\windows\x64\runner\Release"
+          if (!(Test-Path $buildDir)) { $buildDir = "build\windows\runner\Release" }
 
-          # 自动定位 Release 路径并转为绝对路径（防止 WiX 找不到文件）
-          $relPath = "build\windows\x64\runner\Release"
-          if (!(Test-Path $relPath)) { $relPath = "build\windows\runner\Release" }
-          $fullPath = (Resolve-Path $relPath).Path
+          candle -arch x64 -dVersion="$version" `
+            "wix\Metronome.wxs" "wix\components.wxs" `
+            -out "wix\obj\"
 
-          # 复制 icon 到 SourceDir（WiX 需要在 SourceDir 中找到 icon 文件）
-          Copy-Item "windows\runner\resources\app_icon.ico" -Destination "$fullPath" -Force
-
-          # 执行构建
-          & wix build windows\Package.wxs `
-            -d SourceDir="$fullPath" `
-            -arch x64 `
-            -o metronome.msi
+          light -ext WixUIExtension `
+            -cultures:en-us `
+            -b "$buildDir" `
+            "wix\obj\Metronome.wixobj" "wix\obj\components.wixobj" `
+            -out "metronome.msi"
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
